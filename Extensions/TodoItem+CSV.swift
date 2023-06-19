@@ -10,16 +10,17 @@ extension TodoItem {
     static func parse( csv: String) -> TodoItem? {
         let components = csv.components(separatedBy: ",")
         
-        guard components.count >= 6 else {
+        guard components.count >= 6,
+              !components[0].isEmpty,
+              !components[1].isEmpty,
+              let dateCreated = Int(components[5]).flatMap({Date(timeIntervalSince1970: TimeInterval($0))})
+        else {
             return nil
         }
         
         let id = components[0]
         let text = components[1]
-        
-        guard let importance = Importance(rawValue: components[2]) else {
-            return nil
-        }
+        let importance = Importance(rawValue: components[2]) ?? .normal
         
         var deadline: Date? = nil
         if !components[3].isEmpty {
@@ -37,9 +38,7 @@ extension TodoItem {
         let dateChangedTimeStamp = TimeInterval(components[6])
         
         
-        
         let isCompleted = (isCompletedString == "1")
-        let dateCreated = Date(timeIntervalSince1970: dateCreatedTimestamp ?? 0)
         let dateChanged = Date(timeIntervalSince1970: dateChangedTimeStamp ?? 0)
         
         return TodoItem(id: id,
