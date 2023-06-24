@@ -1,76 +1,79 @@
 //
-//  Todo JSON.swift
+//  CSVService.swift
 //  ToDoProject
+//
 
 
 import Foundation
 
 extension TodoItem {
-     static func parse(json: Any) -> TodoItem? {
+    static func parse( csv: String) -> TodoItem? {
+        let components = csv.components(separatedBy: ",")
         
-        guard let json = json as? [String: Any],
-              let id = json["id"] as? String,
-              let text = json["text"] as? String,
-              let dateCreatedInt = json["dateCreated"] as? Int else {
+        guard components.count >= 6,
+              !components[0].isEmpty,
+              !components[1].isEmpty,
+              let dateCreated = Int(components[5]).flatMap({Date(timeIntervalSince1970: TimeInterval($0))})
+        else {
             return nil
         }
         
-        var importance: Importance = .normal
-        if let importanceRawValue = json["importance"] as? String {
-            importance = Importance(rawValue: importanceRawValue) ?? .normal
+        let id = components[0]
+        let text = components[1]
+        let importance = Importance(rawValue: components[2]) ?? .normal
+        
+        var deadline: Date? = nil
+        if !components[3].isEmpty {
+            if let deadlineTimestamp = TimeInterval(components[3]) {
+                deadline = Date(timeIntervalSince1970: deadlineTimestamp)
+            } else {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                deadline = dateFormatter.date(from: components[3])
+            }
         }
         
-        var deadline: Date?
-        if let deadlineInt = json["deadline"] as? Int { deadline = Date(timeIntervalSince1970: TimeInterval(deadlineInt))}
+        let isCompletedString = components[4]
+        let dateCreatedTimestamp = TimeInterval(components[5])
+        let dateChangedTimeStamp = TimeInterval(components[6])
         
-        let isCompleted = json["isCompleted"] as? Bool ?? false
-    
-        let dateCreated = Date(timeIntervalSince1970: TimeInterval(dateCreatedInt))
-    
-        var dateChanged: Date?
-        if let dateChangedInt = json["dateChanged"] as? Int {
-            dateChanged = Date(timeIntervalSince1970: TimeInterval(dateChangedInt))
-        }
         
-        return TodoItem(id: id, text: text, importance: importance, deadline: deadline, isCompleted: isCompleted, dateCreated: dateCreated, dateChanged: dateChanged)
+        let isCompleted = (isCompletedString == "1")
+        let dateChanged = Date(timeIntervalSince1970: dateChangedTimeStamp ?? 0)
+        
+        return TodoItem(id: id,
+                        text: text,
+                        importance: importance,
+                        deadline: deadline,
+                        isCompleted: isCompleted,
+                        dateCreated: dateCreated,
+                        dateChanged: dateChanged)
     }
     
-
-
-    
-    var json: Any {
-        var res: [String: Any] = [
-        "id": id,
-        "text": text,
-        "isCompleted": isCompleted,
-        "dateCreated": Int(dateCreated.timeIntervalSince1970)
-        ]
-        if importance != .normal {
-            res["importance"] = importance.rawValue
-        }
+    var csv: String {
+        var csvString = "\(id),\(text),\(importance.rawValue),"
+        
         if let deadline = deadline {
-            res["deadline"] = Int(deadline.timeIntervalSince1970)
+            let deadlineValue: String
+            let deadlineTimestamp = deadline.timeIntervalSince1970
+            if deadlineTimestamp.isNaN {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                deadlineValue = dateFormatter.string(from: deadline)
+            } else {
+                deadlineValue = "\(deadlineTimestamp)"
+            }
+            csvString += "\(deadlineValue),"
+        } else {
+            csvString += ","
         }
-
+        
+        csvString += "\(isCompleted ? 1 : 0),\(dateCreated.timeIntervalSince1970),"
+        
         if let dateChanged = dateChanged {
-            res["dateChanged"] = Int(dateChanged.timeIntervalSince1970)
+            csvString += "\(dateChanged.timeIntervalSince1970)"
         }
-        return res
-    }
-    
- 
-}
-
-
-
-extension Date {
-    
-    func localDate() -> Date {
-        let timeZoneOffset = Double(TimeZone.current.secondsFromGMT(for: self))
-        let localDate = Calendar.current.date(byAdding: .second, value: Int(timeZoneOffset), to: self) ?? Date()
-        return localDate
+        
+        return csvString
     }
 }
-
-
-
