@@ -19,7 +19,6 @@ class ListViewController: UIViewController {
     @objc private func didTapButton() {
         let rootVC = TaskViewController()
         let navVC = UINavigationController(rootViewController: rootVC)
-        
         present(navVC, animated: true)
     }
 }
