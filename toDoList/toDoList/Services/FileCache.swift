@@ -15,6 +15,7 @@ final class FileCache {
  
     func add(_ item: TodoItem) {
         items[item.id] = item
+        
     }
     
     @discardableResult
@@ -27,11 +28,14 @@ final class FileCache {
     // MARK: - JSON
     
     func saveTaskJSON(toFile file: String) throws {
+        
         let items = items.map { $0.value }
-       
+        
+        try? saveTaskJSON(items: items, to: file)
     }
     
-    func saveTaskJSON(items: [TodoItem], to file: String) throws {
+    private func saveTaskJSON(items: [TodoItem], to file: String) throws {
+        
         let filemanager = FileManager.default
         guard let dir = filemanager.urls(for: .documentDirectory, in: .userDomainMask).first else { throw FileCacheError.cantFindSystemDirectory }
         
@@ -45,6 +49,24 @@ final class FileCache {
         self.items = try loadJSON(from: file).reduce(into: [:]) { res, item in
             res[item.id] = item
         }
+    }
+
+    func getAll() -> [TodoItem] {
+        
+        var result: [TodoItem] = []
+        result = items.values.sorted(by: { $0.dateCreated < $1.dateCreated })
+        return result
+    }
+    
+    func delete(id: String) {
+        
+        for (key, value) in items {
+            if value.id == id {
+                items[key] = nil
+            }
+        }
+        
+        try? saveTaskJSON(toFile: "todoItems")
     }
     
     func loadJSON(from file: String) throws -> [TodoItem] {
