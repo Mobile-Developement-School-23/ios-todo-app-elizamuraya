@@ -76,7 +76,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         separator.isHidden = true
         return separator
     }()
-
     
     private lazy var importanceLabel: UILabel = {
         let label = UILabel()
@@ -111,11 +110,13 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         } else {
             selectedImportance = nil
         }
+        
         segmentedControl.setTitle("нет", forSegmentAt: 1)
         segmentedControl.selectedSegmentIndex = 2
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         segmentedControl.heightAnchor.constraint(equalToConstant: 36).isActive = true
         segmentedControl.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        
         return segmentedControl
     }()
     
@@ -131,7 +132,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         return stackView
     }()
     
-    
     private var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
@@ -143,7 +143,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         return datePicker
     }()
     
-    
     private func updateDateButtonText() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
@@ -152,8 +151,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         var dateString = UIButton()
         dateString.setTitle(dateFormatter.string(from: selectedDate), for: .normal)
     }
-    
-    
     
     private lazy var toggleSwitch: UISwitch = {
         let toggleSwitch = UISwitch()
@@ -326,7 +323,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         dismissSelf()
     }
     
-    
     // MARK: - setupViews
     
     func setupViews() {
@@ -349,7 +345,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         
         row2StackView.addArrangedSubview(leftStack)
         row2StackView.addArrangedSubview(toggleSwitch)
-        
     }
 }
 
