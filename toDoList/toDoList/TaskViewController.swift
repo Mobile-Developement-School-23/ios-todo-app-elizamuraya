@@ -10,7 +10,7 @@ import UIKit
 class TaskViewController: UIViewController, UITextViewDelegate {
     
     // MARK: – Private Properties
-
+    
     private lazy var stackViewMain: UIView = {
         let stackView = UIView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -55,6 +55,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         stackView.alignment = .center
         stackView.distribution = .fill
         stackView.spacing = 16
+        stackView.heightAnchor.constraint(equalToConstant: 56)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -67,6 +68,15 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         return separator
     }()
     
+    private lazy var separator2: UIView = {
+        let separator = UIView()
+        separator.translatesAutoresizingMaskIntoConstraints = true
+        separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
+        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+        separator.isHidden = true
+        return separator
+    }()
+
     
     private lazy var importanceLabel: UILabel = {
         let label = UILabel()
@@ -78,7 +88,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
     private var segmentedControl: UISegmentedControl = {
         
         let segmentedControl = UISegmentedControl(items: [Importance.low.rawValue, Importance.normal.rawValue, Importance.high.rawValue])
-    
+        
         if let lowSegmentImage = UIImage(systemName: "arrow.down") {
             segmentedControl.setImage(lowSegmentImage, forSegmentAt: 0)
             segmentedControl.largeContentImage?.withRenderingMode(.alwaysOriginal)
@@ -116,9 +126,11 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         stackView.alignment = .center
         stackView.distribution = .fill
         stackView.spacing = 16
+        //  stackView.heightAnchor.constraint(equalToConstant: 120)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
+    
     
     private var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
@@ -127,17 +139,20 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.alpha = 0.0
+        datePicker.isHidden = true
         return datePicker
     }()
-
+    
     
     private func updateDateButtonText() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .none
         let selectedDate = datePicker.date
-        let dateString = dateFormatter.string(from: selectedDate)
+        var dateString = UIButton()
+        dateString.setTitle(dateFormatter.string(from: selectedDate), for: .normal)
     }
+    
     
     
     private lazy var toggleSwitch: UISwitch = {
@@ -148,23 +163,33 @@ class TaskViewController: UIViewController, UITextViewDelegate {
     }()
     
     
+    
+    private lazy var newStack: UIStackView = {
+        
+        let newStack = UIStackView(arrangedSubviews: [separator2, datePicker])
+        newStack.axis = .vertical
+        newStack.spacing = 10
+        newStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        return newStack
+    }()
+    
+    
     private lazy var leftStack: UIStackView = {
         let makeBefore = UILabel()
         makeBefore.text = "Сделать до"
+        makeBefore.translatesAutoresizingMaskIntoConstraints = false
+        
         let leftStack = UIStackView(arrangedSubviews: [makeBefore, datePicker])
         leftStack.axis = .vertical
         leftStack.distribution = .fillEqually
         leftStack.alignment = .leading
+        
+        makeBefore.leadingAnchor.constraint(equalTo: leftStack.leadingAnchor).isActive = true
+        makeBefore.topAnchor.constraint(equalTo: leftStack.topAnchor, constant: 16).isActive = true
         return leftStack
     }()
     
-    private lazy var rightStack: UIStackView = {
-        let rightStack = UIStackView(arrangedSubviews: [toggleSwitch])
-        rightStack.axis = .vertical
-        rightStack.distribution = .fill
-        rightStack.alignment = .trailing
-        return rightStack
-    }()
     
     private lazy var deleteButton: UIButton = {
         let button = UIButton()
@@ -174,7 +199,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         button.addTarget(self, action: #selector(deleteTask), for: .touchUpInside)
         return button
     }()
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -317,12 +342,13 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         stackView.addArrangedSubview(row1StackView)
         stackView.addArrangedSubview(separator)
         stackView.addArrangedSubview(row2StackView)
+        stackView.addArrangedSubview(newStack)
         
         row1StackView.addArrangedSubview(importanceLabel)
         row1StackView.addArrangedSubview(segmentedControl)
         
         row2StackView.addArrangedSubview(leftStack)
-        row2StackView.addArrangedSubview(rightStack)
+        row2StackView.addArrangedSubview(toggleSwitch)
         
     }
 }
@@ -349,7 +375,7 @@ extension TaskViewController {
             textView.leadingAnchor.constraint(equalTo: stackViewMain.leadingAnchor, constant: 16),
             textView.trailingAnchor.constraint(equalTo: stackViewMain.trailingAnchor, constant: -16),
             textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120),
-
+            
             stackView.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
             stackView.leadingAnchor.constraint(equalTo: stackViewMain.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: stackViewMain.trailingAnchor, constant: -16),
@@ -357,9 +383,21 @@ extension TaskViewController {
             importanceLabel.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 16),
             leftStack.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 16),
             
+            row1StackView.bottomAnchor.constraint(equalTo: separator.bottomAnchor, constant: -5),
+            row2StackView.topAnchor.constraint(equalTo: separator.bottomAnchor),
+            row2StackView.bottomAnchor.constraint(equalTo: stackView.bottomAnchor, constant: -16),
+            
+            
+            separator.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 16),
+            separator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -16),
             segmentedControl.topAnchor.constraint(equalTo: row1StackView.topAnchor, constant: 10),
             segmentedControl.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -12),
-            rightStack.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -12),
+            
+            toggleSwitch.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -12),
+            toggleSwitch.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 13),
+            
+            leftStack.topAnchor.constraint(equalTo: row2StackView.topAnchor),
+            leftStack.bottomAnchor.constraint(equalTo: row2StackView.bottomAnchor),
             
             deleteButton.heightAnchor.constraint(equalToConstant: 50),
             deleteButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
