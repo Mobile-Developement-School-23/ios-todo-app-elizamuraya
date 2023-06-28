@@ -215,6 +215,15 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         
     }
     
+//    let navigtionBar: UINavigationBar = {
+//        let nav = UINavigationBar()
+//        nav.translatesAutoresizingMaskIntoConstraints = false
+//        nav.backgroundColor = .white
+//        return nav
+//    }()
+    
+    
+    
     // MARK: - Methods
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -237,7 +246,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
             deleteButton.backgroundColor = #colorLiteral(red: 0.1930471361, green: 0.19353351, blue: 0.2080074847, alpha: 1)
             segmentedControl.backgroundColor = .black
         } else {
-            stackViewMain.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645399451, blue: 0.9473810792, alpha: 1)
+            stackViewMain.backgroundColor = #colorLiteral(red: 0.968627451, green: 0.9647058824, blue: 0.9490196078, alpha: 1)
             textView.backgroundColor = .white
             textView.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
             stackView.backgroundColor = .white

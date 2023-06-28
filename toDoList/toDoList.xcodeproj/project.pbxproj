@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		228166E72A4B0860007AA4A7 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228166E62A4B0860007AA4A7 /* ViewModel.swift */; };
+		228166EB2A4B2A13007AA4A7 /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228166EA2A4B2A13007AA4A7 /* TableViewCell.swift */; };
+		228166ED2A4B2C70007AA4A7 /* TableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228166EC2A4B2C70007AA4A7 /* TableView.swift */; };
+		228166F52A4B531F007AA4A7 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228166F42A4B531F007AA4A7 /* ListCell.swift */; };
+		228166F72A4B5AE8007AA4A7 /* TransitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228166F62A4B5AE8007AA4A7 /* TransitionManager.swift */; };
 		22A8F47C2A46678200029E03 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F47B2A46678200029E03 /* AppDelegate.swift */; };
 		22A8F47E2A46678200029E03 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F47D2A46678200029E03 /* SceneDelegate.swift */; };
 		22A8F4802A46678200029E03 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F47F2A46678200029E03 /* ListViewController.swift */; };
@@ -14,14 +19,19 @@
 		22A8F4852A46678400029E03 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22A8F4842A46678400029E03 /* Assets.xcassets */; };
 		22A8F4882A46678400029E03 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22A8F4862A46678400029E03 /* LaunchScreen.storyboard */; };
 		22A8F4902A4668CE00029E03 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F48F2A4668CE00029E03 /* TodoItem.swift */; };
-		22A8F4932A46690E00029E03 /* TodoItem + JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F4922A46690E00029E03 /* TodoItem + JSON.swift */; };
-		22A8F4962A46694D00029E03 /* TodoItem + CSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F4952A46694D00029E03 /* TodoItem + CSV.swift */; };
+		22A8F4932A46690E00029E03 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F4922A46690E00029E03 /* JSON.swift */; };
+		22A8F4962A46694D00029E03 /* CSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F4952A46694D00029E03 /* CSV.swift */; };
 		22A8F49B2A4669FD00029E03 /* TaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F49A2A4669FD00029E03 /* TaskViewController.swift */; };
 		22A8F49D2A466A1F00029E03 /* ColorPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F49C2A466A1F00029E03 /* ColorPickerController.swift */; };
 		22A8F4A02A466A8800029E03 /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A8F49F2A466A8800029E03 /* FileCache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		228166E62A4B0860007AA4A7 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
+		228166EA2A4B2A13007AA4A7 /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
+		228166EC2A4B2C70007AA4A7 /* TableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableView.swift; sourceTree = "<group>"; };
+		228166F42A4B531F007AA4A7 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
+		228166F62A4B5AE8007AA4A7 /* TransitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitionManager.swift; sourceTree = "<group>"; };
 		22A8F4782A46678200029E03 /* toDoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = toDoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22A8F47B2A46678200029E03 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		22A8F47D2A46678200029E03 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -31,8 +41,8 @@
 		22A8F4872A46678400029E03 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		22A8F4892A46678400029E03 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		22A8F48F2A4668CE00029E03 /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
-		22A8F4922A46690E00029E03 /* TodoItem + JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoItem + JSON.swift"; sourceTree = "<group>"; };
-		22A8F4952A46694D00029E03 /* TodoItem + CSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoItem + CSV.swift"; sourceTree = "<group>"; };
+		22A8F4922A46690E00029E03 /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
+		22A8F4952A46694D00029E03 /* CSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSV.swift; sourceTree = "<group>"; };
 		22A8F49A2A4669FD00029E03 /* TaskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewController.swift; sourceTree = "<group>"; };
 		22A8F49C2A466A1F00029E03 /* ColorPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerController.swift; sourceTree = "<group>"; };
 		22A8F49F2A466A8800029E03 /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
@@ -70,6 +80,8 @@
 			children = (
 				22A8F47B2A46678200029E03 /* AppDelegate.swift */,
 				22A8F47D2A46678200029E03 /* SceneDelegate.swift */,
+				22A8F49C2A466A1F00029E03 /* ColorPickerController.swift */,
+				22A8F49A2A4669FD00029E03 /* TaskViewController.swift */,
 				22A8F4942A46693D00029E03 /* Extensions */,
 				22A8F4912A4668E300029E03 /* Models */,
 				22A8F49E2A466A5B00029E03 /* Screens */,
@@ -78,6 +90,8 @@
 				22A8F4842A46678400029E03 /* Assets.xcassets */,
 				22A8F4862A46678400029E03 /* LaunchScreen.storyboard */,
 				22A8F4892A46678400029E03 /* Info.plist */,
+				228166E62A4B0860007AA4A7 /* ViewModel.swift */,
+				228166F62A4B5AE8007AA4A7 /* TransitionManager.swift */,
 			);
 			path = toDoList;
 			sourceTree = "<group>";
@@ -93,8 +107,8 @@
 		22A8F4942A46693D00029E03 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				22A8F4922A46690E00029E03 /* TodoItem + JSON.swift */,
-				22A8F4952A46694D00029E03 /* TodoItem + CSV.swift */,
+				22A8F4922A46690E00029E03 /* JSON.swift */,
+				22A8F4952A46694D00029E03 /* CSV.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -110,9 +124,10 @@
 		22A8F49E2A466A5B00029E03 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				228166EA2A4B2A13007AA4A7 /* TableViewCell.swift */,
 				22A8F47F2A46678200029E03 /* ListViewController.swift */,
-				22A8F49A2A4669FD00029E03 /* TaskViewController.swift */,
-				22A8F49C2A466A1F00029E03 /* ColorPickerController.swift */,
+				228166F42A4B531F007AA4A7 /* ListCell.swift */,
+				228166EC2A4B2C70007AA4A7 /* TableView.swift */,
 			);
 			name = Screens;
 			sourceTree = "<group>";
@@ -188,14 +203,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				228166E72A4B0860007AA4A7 /* ViewModel.swift in Sources */,
 				22A8F4802A46678200029E03 /* ListViewController.swift in Sources */,
 				22A8F47C2A46678200029E03 /* AppDelegate.swift in Sources */,
 				22A8F4902A4668CE00029E03 /* TodoItem.swift in Sources */,
 				22A8F49D2A466A1F00029E03 /* ColorPickerController.swift in Sources */,
+				228166F52A4B531F007AA4A7 /* ListCell.swift in Sources */,
 				22A8F4A02A466A8800029E03 /* FileCache.swift in Sources */,
-				22A8F4932A46690E00029E03 /* TodoItem + JSON.swift in Sources */,
+				228166F72A4B5AE8007AA4A7 /* TransitionManager.swift in Sources */,
+				22A8F4932A46690E00029E03 /* JSON.swift in Sources */,
+				228166ED2A4B2C70007AA4A7 /* TableView.swift in Sources */,
 				22A8F49B2A4669FD00029E03 /* TaskViewController.swift in Sources */,
-				22A8F4962A46694D00029E03 /* TodoItem + CSV.swift in Sources */,
+				228166EB2A4B2A13007AA4A7 /* TableViewCell.swift in Sources */,
+				22A8F4962A46694D00029E03 /* CSV.swift in Sources */,
 				22A8F47E2A46678200029E03 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
