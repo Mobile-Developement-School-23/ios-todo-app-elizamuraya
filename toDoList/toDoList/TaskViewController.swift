@@ -212,15 +212,15 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         
         view.keyboardLayoutGuide.followsUndockedKeyboard = true
         initializeHideKeyboard()
-        
+
     }
     
-//    let navigtionBar: UINavigationBar = {
-//        let nav = UINavigationBar()
-//        nav.translatesAutoresizingMaskIntoConstraints = false
-//        nav.backgroundColor = .white
-//        return nav
-//    }()
+    let navigtionBar: UINavigationBar = {
+        let nav = UINavigationBar()
+        nav.translatesAutoresizingMaskIntoConstraints = false
+        nav.backgroundColor = .white
+        return nav
+    }()
     
     
     
