@@ -1,0 +1,46 @@
+{
+  "buildCommand" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : false,
+    "targets" : null
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "bfdfe7dc352907fc980b868725387e98ce813b61c867830897e5e6e07275e363"
+    },
+    {
+      "guid" : "bfdfe7dc352907fc980b868725387e9895cfa156710812e7f60ca88d18c6352d"
+    }
+  ],
+  "containerPath" : "/Users/macbook1/Desktop/toDo very very final/ios-todo-app-elizamuraya/Pods/Pods.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "",
+      "buildProductsPath" : "",
+      "derivedDataPath" : "/Users/macbook1/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/macbook1/Library/Developer/Xcode/DerivedData/Pods-brtnsnrfdydmstbxsqsonnbirwoh/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/macbook1/Library/Developer/Xcode/DerivedData/Pods-brtnsnrfdydmstbxsqsonnbirwoh/Index.noindex/PrecompiledHeaders",
+      "pchPath" : ""
+    },
+    "configurationName" : "Release",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO"
+        }
+      }
+    }
+  },
+  "qos" : "default",
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : true,
+  "useImplicitDependencies" : false,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : false
+}

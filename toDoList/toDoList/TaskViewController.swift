@@ -6,24 +6,21 @@
 //
 
 import UIKit
+import CocoaLumberjack
 
 class TaskViewController: UIViewController, UITextViewDelegate {
-    
     // MARK: – Private Properties
-    
     private lazy var stackViewMain: UIView = {
         let stackView = UIView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-    
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         stackViewMain.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor).priority = .defaultLow
         return scrollView
     }()
-    
     private lazy var textView: UITextView = {
         let textView = UITextView()
         textView.font = .systemFont(ofSize: 17)

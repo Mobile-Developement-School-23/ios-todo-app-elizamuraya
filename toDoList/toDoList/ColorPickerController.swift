@@ -11,26 +11,20 @@ protocol ColorPickerDelegate: AnyObject {
 }
 
 class ColorPickerView: UIView {
-    
     weak var delegate: ColorPickerDelegate?
-    
     private let colors: [UIColor] = [.red, .blue, .green, .yellow, .orange, .purple]
     private let buttonSize: CGFloat = 40.0
     private let buttonSpacing: CGFloat = 8.0
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupColorButtons()
     }
-    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupColorButtons()
     }
-    
     private func setupColorButtons() {
         var xOffset: CGFloat = 0.0
-        
         for color in colors {
             let colorButton = UIButton(type: .custom)
             colorButton.backgroundColor = color
