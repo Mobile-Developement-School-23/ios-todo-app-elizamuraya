@@ -12,7 +12,7 @@ public struct TodoItem {
     public let isCompleted: Bool
     public let dateCreated: Date
     public let dateChanged: Date?
-    init(id: String = UUID().uuidString, text: String, importance: Importance, deadline: Date? = nil, isCompleted: Bool = false, dateCreated: Date, dateChanged: Date?) {
+    init(id: String = UUID().uuidString, text: String, importance: Importance, deadline: Date? = nil, isCompleted: Bool = false, dateCreated: Date, dateChanged: Date?){
         self.id = id
         self.text = text
         self.importance = importance
