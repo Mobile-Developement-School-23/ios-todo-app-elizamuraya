@@ -211,6 +211,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         setupConstraints()
         setupAppearance()
         setupNavigationBar()
+        textView.text = currentTodoItem?.text
         
         //  title = "Дело"
         //        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Отменить", style: .plain, target: self, action: #selector(dismissSelf))
@@ -370,7 +371,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
     
     // MARK: – JSON
     
-    var fileCache = FileCache()
+  //  var fileCache = FileCache()
     var currentTodoItem: TodoItem?
     
     
@@ -378,32 +379,8 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         guard let taskText = textView.text, !taskText.isEmpty else { return }
 
         let todoItem = TodoItem(text: taskText, importance: .normal, dateCreated: Date(), dateChanged: nil)
-        self.currentTodoItem = todoItem
+      //  self.currentTodoItem = todoItem
 
-        let fileManager = FileManager.default
-        let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
-        let fileURL = documentsDirectory?.appendingPathComponent("todoItem.json")
-
-        var jsonDictionary: [String: Any] = [
-            "id": todoItem.id,
-            "text": todoItem.text,
-            "importance": todoItem.importance.rawValue,
-            "deadline": todoItem.deadline?.timeIntervalSince1970 ?? NSNull(),
-            "isCompleted": todoItem.isCompleted,
-            "dateCreated": todoItem.dateCreated.timeIntervalSince1970,
-            "dateChanged": todoItem.dateChanged?.timeIntervalSince1970 ?? NSNull()
-        ]
-
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: jsonDictionary, options: .prettyPrinted)
-            
-            if let fileURL = fileURL {
-                try jsonData.write(to: fileURL)
-                print("JSON file is saved at: \(fileURL)")
-            }
-        } catch {
-            print("Error saving task to JSON: \(error)")
-        }
         delegate?.saveItem(todoItem)
         dismissSelf()
     }
@@ -412,14 +389,14 @@ class TaskViewController: UIViewController, UITextViewDelegate {
 
     
     @objc private func deleteTask() {
-        guard let taskText = textView.text, !taskText.isEmpty else { return }
-        print("deleteTask")
+//        guard let taskText = textView.text, !taskText.isEmpty else { return }
+//        print("deleteTask")
         
-        do {
-            try fileCache.remove(id: "id")
-        } catch {
-            print("Error saving task to JSON: \(error)")
-        }
+//        do {
+//            try fileCache.remove(id: "id")
+//        } catch {
+//            print("Error saving task to JSON: \(error)")
+//        }
         self.dismiss(animated: true)
         dismissSelf()
     }

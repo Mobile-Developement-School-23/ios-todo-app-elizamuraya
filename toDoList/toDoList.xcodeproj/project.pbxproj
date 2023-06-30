@@ -82,7 +82,6 @@
 				22A8F4842A46678400029E03 /* Assets.xcassets */,
 				22A8F4862A46678400029E03 /* LaunchScreen.storyboard */,
 				22A8F4892A46678400029E03 /* Info.plist */,
-				22A8F49C2A466A1F00029E03 /* ColorPickerController.swift */,
 			);
 			path = toDoList;
 			sourceTree = "<group>";
@@ -116,9 +115,10 @@
 		22A8F49E2A466A5B00029E03 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
-				22A8F49A2A4669FD00029E03 /* TaskViewController.swift */,
 				22A8F47F2A46678200029E03 /* ListViewController.swift */,
+				22A8F49A2A4669FD00029E03 /* TaskViewController.swift */,
 				228166F42A4B531F007AA4A7 /* ListCell.swift */,
+				22A8F49C2A466A1F00029E03 /* ColorPickerController.swift */,
 			);
 			name = Screens;
 			sourceTree = "<group>";

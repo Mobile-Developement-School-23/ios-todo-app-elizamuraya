@@ -33,28 +33,36 @@ class ListViewController: UIViewController {
         return container
     }()
     
-    private let addButton: UIButton = {
-        let image = UIImage(named: "Add")?.withRenderingMode(.alwaysOriginal)
-        let addButton = UIButton(primaryAction: UIAction(image: image, handler: { _ in
-        }))
-        addButton.translatesAutoresizingMaskIntoConstraints = false
-        addButton.addTarget(self, action: #selector(openTaskViewController), for: .touchUpInside)
-        addButton.layer.shadowColor = UIColor.black.cgColor
-        addButton.layer.shadowOffset = CGSize(width: 0, height: 8)
-        addButton.layer.shadowOpacity = 0.3
-        addButton.layer.shadowRadius = 10
-        return addButton
-    }()
+    private lazy var addButton: UIButton = {
+            let image = UIImage(named: "Add")?.withRenderingMode(.alwaysOriginal)
+            let addButton = UIButton(primaryAction: UIAction(image: image, handler: { [weak self] _ in
+                let taskViewController = TaskViewController()
+                taskViewController.delegate = self
+                self?.present(taskViewController, animated: true)
+            }))
+            addButton.translatesAutoresizingMaskIntoConstraints = false
+            addButton.layer.shadowColor = UIColor.black.cgColor
+            addButton.layer.shadowOffset = CGSize(width: 0, height: 8)
+            addButton.layer.shadowOpacity = 0.3
+            addButton.layer.shadowRadius = 10
+            return addButton
+        }()
     
     private let defaultName = "Task"
     
     private let doneLabel: UILabel = {
-        let doneLabel = UILabel()
-        doneLabel.translatesAutoresizingMaskIntoConstraints = false
-        doneLabel.text = "Выполнено — 5"
-        doneLabel.textColor = UIColor(named: "doneLabel")
-        return doneLabel
-    }()
+            let doneLabel = UILabel()
+            doneLabel.translatesAutoresizingMaskIntoConstraints = false
+            doneLabel.text = "Выполнено — 0"
+            doneLabel.textColor = UIColor(named: "doneLabel")
+            return doneLabel
+        }()
+
+        private var boundsImageCount: Int = 0 {
+            didSet {
+                doneLabel.text = "Выполнено — \(boundsImageCount)"
+            }
+        }
     
     private lazy var showDoneTasksButton: UIButton = {
         let showDoneTasksButton = UIButton(configuration: .plain())
@@ -80,7 +88,19 @@ class ListViewController: UIViewController {
         navigationItem.title = "Мои дела"
         navigationController?.navigationBar.layoutMargins = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 0)
         tableView.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseId)
+      //  loadItems()
+        
+       let a = TodoItem(text: "не умереть сегодня", importance: .high, dateCreated: Date(), dateChanged: Date())
+        let b = TodoItem(text: "не умереть завтра", importance: .high, dateCreated: Date(), dateChanged: Date())
+       let c = TodoItem(text: "не умереть послезавтра", importance: .high, dateCreated: Date(), dateChanged: Date())
+        
+        fileCache.add(a)
+        fileCache.add(b)
+        fileCache.add(c)
+        
+        try! fileCache.save(toFile: defaultName, format: .json)
         loadItems()
+        
     }
     
     private func setupViews() {
@@ -100,7 +120,7 @@ class ListViewController: UIViewController {
     private func loadItems() {
         do {
             try fileCache.load(from: defaultName, format: .json)
-            items = fileCache.itemsSorted
+         //   items = fileCache.itemsSorted
             tableView.reloadData()
         } catch {
             debugPrint("error")
@@ -108,8 +128,6 @@ class ListViewController: UIViewController {
     }
 
 }
-
-
    
     extension ListViewController: ListViewControllerDelegate {
         func saveItem(_ todoItem: TodoItem) {
@@ -134,8 +152,6 @@ class ListViewController: UIViewController {
             }
         }
     }
-
-private var items: [TodoItem] = []
     
 
 extension ListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -143,38 +159,37 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseId, for: indexPath) as? ListCell
-//        let item = items[indexPath.row]
-   //     cell?.setUI(fileCache.itemsSorted[indexPath.row])
-
-               
-          
         
-//        let button = UIButton(type: .custom)
-//        button.setImage(UIImage(named: "ellipse"), for: .normal)
-//        button.translatesAutoresizingMaskIntoConstraints = false
-//        button.addTarget(self, action: #selector(changeImageButtonPressed(sender:)), for: .touchUpInside)
-//
-//        cell.contentView.addSubview(button)
-//
-//        NSLayoutConstraint.activate([
-//            button.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 16),
-//            button.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-//            button.widthAnchor.constraint(equalToConstant: 30),
-//            button.heightAnchor.constraint(equalToConstant: 30),
-//        ])
+        let button = UIButton(type: .custom)
+        cell?.setUI(fileCache.itemsSorted[indexPath.row])
         
         return cell ?? UITableViewCell()
+        
     }
     
+    @objc func changeImageButtonPressed(sender: UIButton) {
+         let addImage = UIImage(named: "ellipse")
+         let item1Image = UIImage(named: "bounds")
+         if sender.image(for: .normal)?.pngData() == addImage?.pngData() {
+             sender.setImage(item1Image, for: .normal)
+         } else {
+             sender.setImage(addImage, for: .normal)
+         }
+     }
+           
+
 //    @objc func changeImageButtonPressed(sender: UIButton) {
-//        let addImage = UIImage(named: "ellipse")
-//        let item1Image = UIImage(named: "bounds")
-//        if sender.image(for: .normal)?.pngData() == addImage?.pngData() {
-//            sender.setImage(item1Image, for: .normal)
-//        } else {
-//            sender.setImage(addImage, for: .normal)
-//        }
-//    }
+//         let addImage = UIImage(named: "ellipse")
+//         let item1Image = UIImage(named: "bounds")
+//         if sender.image(for: .normal)?.pngData() == addImage?.pngData() {
+//             sender.setImage(item1Image, for: .normal)
+//             boundsImageCount += 1
+//         } else {
+//             sender.setImage(addImage, for: .normal)
+//             boundsImageCount -= 1
+//         }
+//     }
+
     
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if let cell = cell as? ListCell {
@@ -188,17 +203,16 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print(indexPath.row)
-        
         let taskViewController = TaskViewController()
         taskViewController.transitioningDelegate = self
         taskViewController.modalPresentationStyle = .custom
+        taskViewController.delegate = self
+        taskViewController.currentTodoItem = fileCache.itemsSorted[indexPath.row]
         present(taskViewController, animated: true, completion: nil)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(fileCache.items.count)
-        return 10
-       
+        return fileCache.items.count
     }
     
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
@@ -218,12 +232,10 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, _ in
             guard let self else { return }
-            
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
         
         deleteAction.image = UIImage(systemName: "trash.fill")
-        
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
     
@@ -263,7 +275,6 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0))
         animator.addCompletion {
             let vc = TaskViewController()
-            //            self.show(vc, sender: cell)
             self.present(vc, animated: true)
             print("animator")
         }
@@ -295,110 +306,4 @@ extension ListViewController: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         return CustomTransitionAnimator()
     }
-    
 }
-
-
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//
-//         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomViewCell
-//         let button = UIButton(type: .custom)
-//         button.setImage(UIImage(named: "ellipse"), for: .normal)
-//         button.translatesAutoresizingMaskIntoConstraints = false
-//         button.addTarget(self, action: #selector(changeImageButtonPressed(sender:)), for: .touchUpInside)
-//
-//         cell.contentView.addSubview(button)
-//
-//         NSLayoutConstraint.activate([
-//             button.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 16),
-//             button.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-//             button.widthAnchor.constraint(equalToConstant: 30),
-//             button.heightAnchor.constraint(equalToConstant: 30),
-//         ])
-//
-//         return cell
-//     }
-
-
-//
-//    @objc func changeImageButtonPressed(sender: UIButton) {
-//        let addImage = UIImage(named: "ellipse")
-//        let item1Image = UIImage(named: "bounds")
-//        if sender.image(for: .normal)?.pngData() == addImage?.pngData() {
-//            sender.setImage(item1Image, for: .normal)
-//        } else {
-//            sender.setImage(addImage, for: .normal)
-//        }
-//    }
-//
-//
-//    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-//        return CustomTransitionAnimator()
-//    }
-
-
-
-
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.idTableViewCell, for: indexPath) as! ListCell
-//        cell.task.text =  "Task \(indexPath.row + 1)"
-//        return cell
-//    }
-
-
-//    func setCrossed() {
-//        guard let viewModel else {return}
-//        if viewModel.done {
-//            task.textColor = .lightGray
-//            let attributedString = NSAttributedString(string: task.text ?? "", attributes: [NSAttributedString.Key.strikethroughStyle: NSUnderlineStyle.single.rawValue])
-//            task.attributedText = attributedString
-//        } else {
-//            task.textColor = .black let attributedString = NSAttributedString(string: task.text ?? "", attributes: [NSAttributedString.Key.strikethroughStyle: NSUnderlineStyle.self])
-//            task.attributedText = attributedString
-//
-////        }
-//    }
-
-//    private let attributeContainer: AttributeContainer = {
-//           var container = AttributeContainer()
-//           container.font = .systemFont(ofSize: 17, weight: .semibold)
-//           return container
-//       }()
-
-
-
-
-
-
-//
-//    private func editTask(_ index: Int) {
-//            let taskViewController = TaskViewController()
-//        TaskViewController.todoItem = fileCache.tasksSorted[index]
-//        taskViewController.delegate = self
-//            present(taskViewController, animated: true)
-//        }
-
-
-
-//    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//
-//        //        if indexPath.row == 0  || indexPath.row == 4 {
-//        //                  let shape = CAShapeLayer()
-//        //                  let rect = CGRect(x: 0, y: 0, width: cell.bounds.width, height: cell.bounds.size.height)
-//        //                  let corners: UIRectCorner = indexPath.row == 0 ? [.topLeft, .topRight] : [.bottomRight, .bottomLeft]
-//        //
-//        //                  shape.path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: 16, height: 16)).cgPath
-//        //                  cell.layer.mask = shape
-//        //                  cell.layer.masksToBounds = true
-//
-//        print(indexPath.row)
-//        if indexPath.row == 0 || indexPath.row == tableView.numberOfRows(inSection: 0) - 1 {
-//            let shape = CAShapeLayer()
-//            let rect = CGRect(x: 0, y: 0, width: cell.bounds.width, height: cell.bounds.size.height)
-//            let corners: UIRectCorner = indexPath.row == 0 ? [.topLeft, .topRight] : [.bottomRight, .bottomLeft]
-//
-//            shape.path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: 16, height: 16)).cgPath
-//            cell.layer.mask = shape
-//            cell.layer.masksToBounds = true
-//        }
-//    }
