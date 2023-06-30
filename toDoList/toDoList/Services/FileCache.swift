@@ -1,27 +1,27 @@
 import Foundation
 
-enum FileCacheError: Error {
+public enum FileCacheError: Error {
     case unparsableData
     case cantFindSystemDirectory
 }
 
-final class FileCache {
+public final class FileCache {
     private(set) var items: [String: TodoItem] = [:]
-    func add(_ item: TodoItem) {
+    public func add(_ item: TodoItem) {
         items[item.id] = item
     }
     @discardableResult
-    func remove(_ id: String) -> TodoItem? {
+    public func remove(_ id: String) -> TodoItem? {
         let item = items[id]
         items[id] = nil
         return item
     }
     // MARK: - JSON
-    func saveTaskJSON(toFile file: String) throws {
+    public func saveTaskJSON(toFile file: String) throws {
         let items = items.map { $0.value }
         try? saveTaskJSON(items: items, to: file)
     }
-    private func saveTaskJSON(items: [TodoItem], to file: String) throws {
+    public func saveTaskJSON(items: [TodoItem], to file: String) throws {
         let filemanager = FileManager.default
         guard let dir = filemanager.urls(for: .documentDirectory, in: .userDomainMask).first else { throw FileCacheError.cantFindSystemDirectory }
         let path = dir.appendingPathComponent("\(file).json")
@@ -29,18 +29,18 @@ final class FileCache {
         let data = try JSONSerialization.data(withJSONObject: items, options: [.prettyPrinted])
         try data.write(to: path, options: [.atomicWrite])
     }
-    func loadJSON(from file: String) throws {
+    public func loadJSON(from file: String) throws {
         self.items = try loadJSON(from: file).reduce(into: [:]) { res, item in
             res[item.id] = item
         }
     }
 
-    func getAll() -> [TodoItem] {
+    public func getAll() -> [TodoItem] {
         var result: [TodoItem] = []
         result = items.values.sorted(by: { $0.dateCreated < $1.dateCreated })
         return result
     }
-    func delete(id: String) {
+    public func delete(id: String) {
         for (key, value) in items {
             if value.id == id {
                 items[key] = nil
@@ -48,7 +48,7 @@ final class FileCache {
         }
         try? saveTaskJSON(toFile: "todoItems")
     }
-    func loadJSON(from file: String) throws -> [TodoItem] {
+    public func loadJSON(from file: String) throws -> [TodoItem] {
         let filemanager = FileManager.default
         guard let dir = filemanager.urls(for: .documentDirectory, in: .userDomainMask).first else {
             throw FileCacheError.cantFindSystemDirectory
@@ -63,12 +63,12 @@ final class FileCache {
         return deserializedItems
     }
     // MARK: - CSV
-    func loadCSV(from file: String) throws {
+    public func loadCSV(from file: String) throws {
         self.items = try loadCSV(from: file).reduce(into: [:]) { res, item in
             res[item.id] = item
         }
     }
-    func loadCSV(from file: String) throws -> [TodoItem] {
+    public func loadCSV(from file: String) throws -> [TodoItem] {
         let filemanager = FileManager.default
         guard let dir = filemanager.urls(for: .documentDirectory, in: .userDomainMask).first else {
             throw FileCacheError.cantFindSystemDirectory
@@ -82,11 +82,11 @@ final class FileCache {
         let deserializedItems = lines.compactMap { TodoItem.parse(csv: $0) }
         return deserializedItems
     }
-    func saveCSV(to file: String) throws {
+    public func saveCSV(to file: String) throws {
         let items = items.map { $0.value }
         try saveCSV(items: items, to: file)
     }
-    func saveCSV(items: [TodoItem], to file: String) throws {
+    public func saveCSV(items: [TodoItem], to file: String) throws {
         let filemanager = FileManager.default
         guard let dir = filemanager.urls(for: .documentDirectory, in: .userDomainMask).first else {
             throw FileCacheError.cantFindSystemDirectory

@@ -6,11 +6,11 @@
 //
 import UIKit
 
-protocol ColorPickerDelegate: AnyObject {
+public protocol ColorPickerDelegate: AnyObject {
     func didSelectColor(_ color: UIColor)
 }
 
-class ColorPickerView: UIView {
+public class ColorPickerView: UIView {
     weak var delegate: ColorPickerDelegate?
     private let colors: [UIColor] = [.red, .blue, .green, .yellow, .orange, .purple]
     private let buttonSize: CGFloat = 40.0
@@ -23,7 +23,7 @@ class ColorPickerView: UIView {
         super.init(coder: coder)
         setupColorButtons()
     }
-    private func setupColorButtons() {
+    public  func setupColorButtons() {
         var xOffset: CGFloat = 0.0
         for color in colors {
             let colorButton = UIButton(type: .custom)
@@ -44,7 +44,7 @@ class ColorPickerView: UIView {
         }
     }
     
-    @objc private func colorButtonTapped(_ sender: UIButton) {
+    @objc public func colorButtonTapped(_ sender: UIButton) {
         let selectedColor = sender.backgroundColor ?? .clear
         delegate?.didSelectColor(selectedColor)
     }
