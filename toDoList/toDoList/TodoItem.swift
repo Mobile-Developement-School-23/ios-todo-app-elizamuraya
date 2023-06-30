@@ -1,10 +1,3 @@
-//
-//  TodoItem.swift
-//  toDoList
-//
-//  Created by MacBookAir on 24.06.2023.
-//
-
 import Foundation
 
 enum Importance: String {
@@ -12,13 +5,11 @@ enum Importance: String {
    case normal
    case high
 }
-
-
 struct TodoItem {
     let id: String
     let text: String
     let importance: Importance
-    let deadline: Date?
+    var deadline: Date? = nil
     let isCompleted: Bool
     let dateCreated: Date
     let dateChanged: Date?

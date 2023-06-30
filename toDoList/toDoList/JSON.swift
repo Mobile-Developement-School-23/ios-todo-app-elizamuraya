@@ -1,25 +1,18 @@
-//
-//  Todo JSON.swift
-//  ToDoProject
-
 
 import Foundation
 
 extension TodoItem {
      static func parse(json: Any) -> TodoItem? {
-        
         guard let json = json as? [String: Any],
               let id = json["id"] as? String,
               let text = json["text"] as? String,
               let dateCreatedInt = json["dateCreated"] as? Int else {
             return nil
         }
-        
         var importance: Importance = .normal
         if let importanceRawValue = json["importance"] as? String {
             importance = Importance(rawValue: importanceRawValue) ?? .normal
         }
-        
         var deadline: Date?
         if let deadlineInt = json["deadline"] as? Int { deadline = Date(timeIntervalSince1970: TimeInterval(deadlineInt))}
         
@@ -31,12 +24,8 @@ extension TodoItem {
         if let dateChangedInt = json["dateChanged"] as? Int {
             dateChanged = Date(timeIntervalSince1970: TimeInterval(dateChangedInt))
         }
-        
         return TodoItem(id: id, text: text, importance: importance, deadline: deadline, isCompleted: isCompleted, dateCreated: dateCreated, dateChanged: dateChanged)
     }
-    
-
-
     
     var json: Any {
         var res: [String: Any] = [
@@ -57,20 +46,12 @@ extension TodoItem {
         }
         return res
     }
-    
- 
 }
 
-
-
 extension Date {
-    
     func localDate() -> Date {
         let timeZoneOffset = Double(TimeZone.current.secondsFromGMT(for: self))
         let localDate = Calendar.current.date(byAdding: .second, value: Int(timeZoneOffset), to: self) ?? Date()
         return localDate
     }
 }
-
-
-

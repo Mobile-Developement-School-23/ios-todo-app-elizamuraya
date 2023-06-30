@@ -11,7 +11,6 @@ class CustomTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning 
             transitionContext.completeTransition(false)
             return
         }
-        
         let containerView = transitionContext.containerView
         containerView.addSubview(toVC.view)
         toVC.view.frame = transitionContext.finalFrame(for: toVC)
