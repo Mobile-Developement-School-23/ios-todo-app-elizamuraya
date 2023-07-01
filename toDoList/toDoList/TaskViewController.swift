@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  ToDoProject
-//
-//  Created by MacBookAir on 10.06.2023.
-//
-
 import UIKit
 
 class TaskViewController: UIViewController, UITextViewDelegate {
@@ -38,10 +31,8 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         textView.text = placeholder
         textView.becomeFirstResponder()
         textView.translatesAutoresizingMaskIntoConstraints = false
-    
         return textView
     }()
-    
     
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
@@ -212,17 +203,9 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         setupAppearance()
         setupNavigationBar()
         textView.text = currentTodoItem?.text
-        
-        //  title = "Дело"
-        //        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Отменить", style: .plain, target: self, action: #selector(dismissSelf))
-        //        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
-        //        navigationItem.rightBarButtonItem?.tintColor = UIColor.lightGray
-        
         view.keyboardLayoutGuide.followsUndockedKeyboard = true
         initializeHideKeyboard()
-        
     }
-    
     private func setupNavigationBar() {
         view.addSubview(navigationBar)
         NSLayoutConstraint.activate([
@@ -232,11 +215,9 @@ class TaskViewController: UIViewController, UITextViewDelegate {
             navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
     }
-    
     private lazy var navigationBar: UINavigationBar = {
         let navigationBar = UINavigationBar()
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
-        // navigationBar.prefersLargeTitles = false
         let cancelItem = UIBarButtonItem(primaryAction: UIAction(title: "Отменить") { [weak self] _ in
             self?.dismiss(animated: true)
         })
@@ -273,11 +254,9 @@ class TaskViewController: UIViewController, UITextViewDelegate {
           }
       }
     
-    
     @objc private func dismissSelf() {
         dismiss(animated: true, completion: nil)
     }
-    
     
     // MARK: - Methods
     
@@ -285,7 +264,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         super.traitCollectionDidChange(previousTraitCollection)
         setupAppearance()
     }
-    
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -297,7 +275,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
                textView.textColor = UIColor(named: "text")
            }
        }
-
 
        func textViewDidEndEditing(_ textView: UITextView) {
            if textView.text.isEmpty {
@@ -327,7 +304,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         }
     }
     
-    
     private func updateButtonColor() {
         if !textView.text.isEmpty {
             navigationItem.rightBarButtonItem?.tintColor = UIColor.systemBlue
@@ -343,10 +319,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
     func textViewDidChange(_: UITextView) {
             enabledButtons()
         }
-//    func textViewDidChange(_ textView: UITextView) {
-//        updateButtonColor()
-//    }
-//
+
     func initializeHideKeyboard(){
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissMyKeyboard))
         view.addGestureRecognizer(tap)
@@ -371,40 +344,21 @@ class TaskViewController: UIViewController, UITextViewDelegate {
     
     // MARK: – JSON
     
-  //  var fileCache = FileCache()
     var currentTodoItem: TodoItem?
-    
     
     @objc func saveTask() {
         guard let taskText = textView.text, !taskText.isEmpty else { return }
 
         let todoItem = TodoItem(text: taskText, importance: .normal, dateCreated: Date(), dateChanged: nil)
-      //  self.currentTodoItem = todoItem
-
         delegate?.saveItem(todoItem)
         dismissSelf()
     }
-
-    
-
     
     @objc private func deleteTask() {
-//        guard let taskText = textView.text, !taskText.isEmpty else { return }
-//        print("deleteTask")
-        
-//        do {
-//            try fileCache.remove(id: "id")
-//        } catch {
-//            print("Error saving task to JSON: \(error)")
-//        }
         self.dismiss(animated: true)
         dismissSelf()
     }
-    
-    
-    
  
-    
     // MARK: - setupViews
     
     func setupViews() {
@@ -483,17 +437,3 @@ extension TaskViewController {
         ])
     }
 }
-
-//    @objc func saveTask() {
-//        guard let taskText = textView.text, !taskText.isEmpty else { return }
-//        let todoItem = TodoItem(text: taskText, importance: .normal, dateCreated: Date(), dateChanged: nil)
-//        self.currentTodoItem = todoItem
-//        fileCache.add(todoItem)
-//        do {
-//            try fileCache.save(toFile: "todoItem", format: .json)
-//
-//        } catch {
-//            print("Error saving task to JSON: \(error)")
-//        }
-//        dismissSelf()
-//    }

@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  toDoList
-//
-//  Created by MacBookAir on 24.06.2023.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -22,12 +15,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
-        
-        //            window = UIWindow(frame: windowScene.coordinateSpace.bounds)
-        //            window?.windowScene = windowScene
-        //
-        //            window?.rootViewController = ListViewController()
-        //            window?.makeKeyAndVisible()
     }
     
     

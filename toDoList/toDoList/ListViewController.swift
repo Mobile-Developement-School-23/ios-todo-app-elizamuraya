@@ -7,8 +7,7 @@ protocol ListViewControllerDelegate: AnyObject {
 
 class ListViewController: UIViewController {
     private let fileCache: DataCache = FileCache()
-    
-    //  var todoItem = [TodoItem]()
+    private var items: [TodoItem] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -33,81 +32,69 @@ class ListViewController: UIViewController {
         return container
     }()
     
+    private var countImage: Int = 0 {
+        didSet {
+            doneLabel.text = "Выполнено — 0"
+        }
+    }
+    
     private lazy var addButton: UIButton = {
-            let image = UIImage(named: "Add")?.withRenderingMode(.alwaysOriginal)
-            let addButton = UIButton(primaryAction: UIAction(image: image, handler: { [weak self] _ in
-                let taskViewController = TaskViewController()
-                taskViewController.delegate = self
-                self?.present(taskViewController, animated: true)
-            }))
-            addButton.translatesAutoresizingMaskIntoConstraints = false
-            addButton.layer.shadowColor = UIColor.black.cgColor
-            addButton.layer.shadowOffset = CGSize(width: 0, height: 8)
-            addButton.layer.shadowOpacity = 0.3
-            addButton.layer.shadowRadius = 10
-            return addButton
-        }()
+        let image = UIImage(named: "Add")?.withRenderingMode(.alwaysOriginal)
+        let addButton = UIButton(primaryAction: UIAction(image: image, handler: { [weak self] _ in
+            let taskViewController = TaskViewController()
+            taskViewController.delegate = self
+            self?.present(taskViewController, animated: true)
+        }))
+        addButton.translatesAutoresizingMaskIntoConstraints = false
+        addButton.layer.shadowColor = UIColor.black.cgColor
+        addButton.layer.shadowOffset = CGSize(width: 0, height: 8)
+        addButton.layer.shadowOpacity = 0.3
+        addButton.layer.shadowRadius = 10
+        return addButton
+    }()
     
     private let defaultName = "Task"
     
     private let doneLabel: UILabel = {
-            let doneLabel = UILabel()
-            doneLabel.translatesAutoresizingMaskIntoConstraints = false
-            doneLabel.text = "Выполнено — 0"
-            doneLabel.textColor = UIColor(named: "doneLabel")
-            return doneLabel
-        }()
-
-        private var boundsImageCount: Int = 0 {
-            didSet {
-                doneLabel.text = "Выполнено — \(boundsImageCount)"
-            }
-        }
+        let doneLabel = UILabel()
+        doneLabel.translatesAutoresizingMaskIntoConstraints = false
+        doneLabel.text = "Выполнено — 0"
+        doneLabel.textColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2896316225)
+        return doneLabel
+    }()
     
-    private lazy var showDoneTasksButton: UIButton = {
-        let showDoneTasksButton = UIButton(configuration: .plain())
-        showDoneTasksButton.translatesAutoresizingMaskIntoConstraints = false
-        showDoneTasksButton.configuration?.attributedTitle = AttributedString("Показать", attributes: attributeContainer)
-        showDoneTasksButton.addAction(UIAction(handler: { [weak self] _ in
+    private lazy var tasksDoneButton: UIButton = {
+        let tasksDoneButton = UIButton(configuration: .plain())
+        tasksDoneButton.translatesAutoresizingMaskIntoConstraints = false
+        tasksDoneButton.configuration?.attributedTitle = AttributedString("Скрыть", attributes: attributeContainer)
+        tasksDoneButton.addAction(UIAction(handler: { [weak self] _ in
             guard let self else { return }
-            if showDoneTasksButton.titleLabel?.text == "Показать" {
-                showDoneTasksButton.configuration?.attributedTitle = AttributedString("Скрыть", attributes: attributeContainer)
+            if tasksDoneButton.titleLabel?.text == "Скрыть" {
+                tasksDoneButton.configuration?.attributedTitle = AttributedString("Показать", attributes: attributeContainer)
             } else {
-                showDoneTasksButton.configuration?.attributedTitle = AttributedString("Показать", attributes: attributeContainer)
+                tasksDoneButton.configuration?.attributedTitle = AttributedString("Скрыть", attributes: attributeContainer)
             }
         }), for: .touchUpInside)
-        return showDoneTasksButton
+        return tasksDoneButton
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         setupConstraints()
-        
         view.backgroundColor = #colorLiteral(red: 0.968627451, green: 0.9647058824, blue: 0.9490196078, alpha: 1)
         navigationItem.title = "Мои дела"
         navigationController?.navigationBar.layoutMargins = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 0)
         tableView.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseId)
-      //  loadItems()
-        
-       let a = TodoItem(text: "не умереть сегодня", importance: .high, dateCreated: Date(), dateChanged: Date())
-        let b = TodoItem(text: "не умереть завтра", importance: .high, dateCreated: Date(), dateChanged: Date())
-       let c = TodoItem(text: "не умереть послезавтра", importance: .high, dateCreated: Date(), dateChanged: Date())
-        
-        fileCache.add(a)
-        fileCache.add(b)
-        fileCache.add(c)
-        
         try! fileCache.save(toFile: defaultName, format: .json)
         loadItems()
-        
     }
     
     private func setupViews() {
         view.addSubview(tableView)
         view.addSubview(addButton)
         headerView.addSubview(doneLabel)
-        headerView.addSubview(showDoneTasksButton)
+        headerView.addSubview(tasksDoneButton)
     }
     
     // MARK: Actions
@@ -120,83 +107,120 @@ class ListViewController: UIViewController {
     private func loadItems() {
         do {
             try fileCache.load(from: defaultName, format: .json)
-         //   items = fileCache.itemsSorted
             tableView.reloadData()
         } catch {
             debugPrint("error")
         }
     }
-
 }
-   
-    extension ListViewController: ListViewControllerDelegate {
-        func saveItem(_ todoItem: TodoItem) {
-            fileCache.add(todoItem)
-            do {
-                try fileCache.save(toFile: defaultName, format: .json)
-            } catch {
-                debugPrint("error")
-            }
+
+extension ListViewController: ListViewControllerDelegate {
+    func saveItem(_ todoItem: TodoItem) {
+        fileCache.add(todoItem)
+        do {
+            try fileCache.save(toFile: defaultName, format: .json)
+        } catch {
+            debugPrint("error")
+        }
+        tableView.reloadData()
+    }
+    
+    func deleteItem(_ id: String,_ reloadTable: Bool = true) {
+//        if let toDoItem = fileCache.items.first(where: { $0.value.id == id }), toDoItem.value.isCompleted {
+//            countImage -= 1
+//        }
+        fileCache.remove(id: id)
+        do {
+            try fileCache.save(toFile: defaultName, format: .json)
+        } catch {
+            debugPrint("error")
+        }
+        if reloadTable {
             tableView.reloadData()
         }
-        
-        func deleteItem(_ id: String,_ reloadTable: Bool = true) {
-            fileCache.remove(id: id)
-            do {
-                try fileCache.save(toFile: defaultName, format: .json)
-            } catch {
-                debugPrint("error")
-            }
-            if reloadTable {
-                tableView.reloadData()
-            }
+    }
+}
+
+extension ListViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == 0 || indexPath.row == tableView.numberOfRows(inSection: 0) - 1 {
+            let shape = CAShapeLayer()
+            let rect = CGRect(x: 0, y: 0, width: cell.bounds.width, height: cell.bounds.size.height)
+            let corners: UIRectCorner = indexPath.row == 0 ? [.topLeft, .topRight] : [.bottomRight, .bottomLeft]
+            
+            shape.path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: 16, height: 16)).cgPath
+            cell.layer.mask = shape
+            cell.layer.masksToBounds = true
         }
     }
     
-
-extension ListViewController: UITableViewDelegate, UITableViewDataSource {
-    
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseId, for: indexPath) as? ListCell
-        
-        let button = UIButton(type: .custom)
-        cell?.setUI(fileCache.itemsSorted[indexPath.row])
-        
-        return cell ?? UITableViewCell()
-        
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return fileCache.items.count
     }
     
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseId, for: indexPath) as! ListCell
+        
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(named: "ellipse"), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(changeImageButtonPressed(sender:)), for: .touchUpInside)
+        cell.contentView.addSubview(button)
+        
+        NSLayoutConstraint.activate([
+            button.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 16),
+            button.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+            button.widthAnchor.constraint(equalToConstant: 30),
+            button.heightAnchor.constraint(equalToConstant: 30),
+        ])
+        
+        cell.textLabel?.text = fileCache.itemsSorted[indexPath.row].text
+        cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            cell.textLabel!.leadingAnchor.constraint(equalTo: button.trailingAnchor, constant: 12),
+            cell.textLabel!.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+        ])
+        
+        let arrowImageView = UIImageView()
+        arrowImageView.translatesAutoresizingMaskIntoConstraints = false
+        arrowImageView.image = UIImage(named: "arrow")
+        cell.contentView.addSubview(arrowImageView)
+        
+        NSLayoutConstraint.activate([
+            arrowImageView.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -32),
+            arrowImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+        ])
+        return cell
+    }
+
     @objc func changeImageButtonPressed(sender: UIButton) {
-         let addImage = UIImage(named: "ellipse")
-         let item1Image = UIImage(named: "bounds")
-         if sender.image(for: .normal)?.pngData() == addImage?.pngData() {
-             sender.setImage(item1Image, for: .normal)
-         } else {
-             sender.setImage(addImage, for: .normal)
-         }
-     }
-           
-
-//    @objc func changeImageButtonPressed(sender: UIButton) {
-//         let addImage = UIImage(named: "ellipse")
-//         let item1Image = UIImage(named: "bounds")
-//         if sender.image(for: .normal)?.pngData() == addImage?.pngData() {
-//             sender.setImage(item1Image, for: .normal)
-//             boundsImageCount += 1
-//         } else {
-//             sender.setImage(addImage, for: .normal)
-//             boundsImageCount -= 1
-//         }
-//     }
-
-    
-    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let cell = cell as? ListCell {
-            if indexPath.row == 0 {
-                cell.corners = [.topLeft, .topRight]
-            } else if indexPath.row == tableView.numberOfRows(inSection: 0) - 1 {
-                cell.corners = [.bottomRight, .bottomLeft]
+        let ellipse = UIImage(named: "Ellipse")
+        let bounds = UIImage(named: "Bounds")
+        
+        
+        if let cell = sender.superview?.superview as? ListCell,
+           let indexPath = tableView.indexPath(for: cell) {
+            if sender.image(for: .normal)?.pngData() == ellipse?.pngData() {
+                var currentItem = fileCache.itemsSorted[indexPath.row]
+                currentItem.isCompleted = true
+                
+                sender.setImage(bounds, for: .normal)
+                countImage += 1
+                
+                let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: cell.textLabel?.text ?? "")
+                attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
+                cell.textLabel?.attributedText = attributeString
+            } else {
+                var currentItem = fileCache.itemsSorted[indexPath.row]
+                currentItem.isCompleted = false
+                
+                sender.setImage(ellipse, for: .normal)
+                sender.setImage(ellipse, for: .normal)
+                countImage -= 1
+                
+                let normalString: NSMutableAttributedString =  NSMutableAttributedString(string: fileCache.itemsSorted[indexPath.row].text)
+                normalString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 0, range: NSMakeRange(0, normalString.length))
+                cell.textLabel?.attributedText = normalString
             }
         }
     }
@@ -211,18 +235,21 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         present(taskViewController, animated: true, completion: nil)
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fileCache.items.count
-    }
-    
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         56
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let doneAction = UIContextualAction(style: .normal, title: nil) { _, _, _ in
+        let doneAction = UIContextualAction(style: .normal, title: nil) { [weak self] _, _, completionHandler in
+            guard let self = self else { return }
             
+            if let cell = tableView.cellForRow(at: indexPath) as? ListCell,
+               let button = cell.contentView.subviews.first(where: { $0 is UIButton }) as? UIButton {
+                self.changeImageButtonPressed(sender: button)
+            }
+            completionHandler(true)
         }
+        
         doneAction.backgroundColor = #colorLiteral(red: 0.2260308266, green: 0.8052191138, blue: 0.4233448207, alpha: 1)
         doneAction.image = UIImage(systemName: "checkmark.circle.fill")
         return UISwipeActionsConfiguration(actions: [doneAction])
@@ -232,10 +259,14 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, _ in
             guard let self else { return }
+            let toDoItem = fileCache.itemsSorted[indexPath.row]
+            
+            deleteItem(toDoItem.id, false)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
         
         deleteAction.image = UIImage(systemName: "trash.fill")
+        
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
     
@@ -244,27 +275,23 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let identifier = "\(index)" as NSString
         return UIContextMenuConfiguration(identifier: identifier,
                                           previewProvider: nil,
-                                          actionProvider: { _ in
-            let inspectAction =
-            UIAction(title: NSLocalizedString("InspectTitle", comment: ""),
-                     image: UIImage(systemName: "arrow.up.square"))
-            { _ in
-                
-            }
-            let duplicateAction =
-            UIAction(title: NSLocalizedString("DuplicateTitle", comment: ""),
-                     image: UIImage(systemName: "plus.square.on.square"))
-            { _ in
-                
-            }
+                                          actionProvider: { [weak self] _ in
+            guard let self else { return UIMenu() }
+            //            let inspectAction =
+            //            UIAction(title: NSLocalizedString("Редактировать", comment: ""),
+            //                     image: UIImage(systemName: "arrow.up.square"))
+            //            { _ in
+            //                self.editTask(index)
+            //            }
             let deleteAction =
-            UIAction(title: NSLocalizedString("DeleteTitle", comment: ""),
+            UIAction(title: NSLocalizedString("Удалить", comment: ""),
                      image: UIImage(systemName: "trash"),
                      attributes: .destructive)
             { _ in
-                
+                let toDoItem = self.fileCache.itemsSorted[index]
+                self.deleteItem(toDoItem.id)
             }
-            return UIMenu(title: "", children: [inspectAction, duplicateAction, deleteAction])
+            return UIMenu(title: "", children: [deleteAction])
         })
     }
     
@@ -284,22 +311,21 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
             
             addButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             
             doneLabel.topAnchor.constraint(equalTo: headerView.topAnchor),
             doneLabel.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
-            doneLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
+            doneLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 28),
             
-            showDoneTasksButton.topAnchor.constraint(equalTo: headerView.topAnchor),
-            showDoneTasksButton.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
-            showDoneTasksButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
+            tasksDoneButton.topAnchor.constraint(equalTo: headerView.topAnchor),
+            tasksDoneButton.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
+            tasksDoneButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
         ])
     }
-    
 }
 
 extension ListViewController: UIViewControllerTransitioningDelegate {
