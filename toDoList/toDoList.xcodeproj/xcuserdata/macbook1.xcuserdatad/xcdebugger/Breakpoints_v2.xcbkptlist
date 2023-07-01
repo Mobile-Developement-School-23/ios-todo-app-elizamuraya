@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "CB9D36D2-E252-4672-B000-52308D01F968"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "11284C56-5E86-4CC1-927E-F3E6101D639D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "toDoList/TodoItem.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "11"
+            endingLineNumber = "11"
+            landmarkName = "TodoItem"
+            landmarkType = "14">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B3CD8EE3-9A10-4CD1-B035-106428FB455F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "toDoList/Services/FileCache.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "add(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "toDoList/ListViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "12"
+            endingLineNumber = "12"
+            landmarkName = "tableView"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418 - 11dfdc3757f28849"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "toDoList.ListViewController.tableView.getter : __C.UITableView"
+                  moduleName = "toDoList"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook1/Desktop/toDo%20very%20very%20final/ios-todo-app-elizamuraya/toDoList/toDoList/ListViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "168">
+               </Location>
+               <Location
+                  uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418 - 689c4b2dc13d2511"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; __C.UITableView in toDoList.ListViewController.tableView.getter : __C.UITableView"
+                  moduleName = "toDoList"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook1/Desktop/toDo%20very%20very%20final/ios-todo-app-elizamuraya/toDoList/toDoList/ListViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418 - afe19809a791b45d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "toDoList.ListViewController.tableView.setter : __C.UITableView"
+                  moduleName = "toDoList"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook1/Desktop/toDo%20very%20very%20final/ios-todo-app-elizamuraya/toDoList/toDoList/ListViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "108">
+               </Location>
+               <Location
+                  uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418 - 301043a77276434e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "toDoList.ListViewController.tableView.modify : __C.UITableView"
+                  moduleName = "toDoList"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook1/Desktop/toDo%20very%20very%20final/ios-todo-app-elizamuraya/toDoList/toDoList/ListViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418 - 9d125f87ef6a1ab6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "toDoList.ListViewController.tableView.modify : __C.UITableView with unmangled suffix &quot;.resume.0&quot;"
+                  moduleName = "toDoList"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook1/Desktop/toDo%20very%20very%20final/ios-todo-app-elizamuraya/toDoList/toDoList/ListViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418 - c706451b5588df08"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "toDoList.ListViewController.init(nibName: Swift.Optional&lt;Swift.String&gt;, bundle: Swift.Optional&lt;__C.NSBundle&gt;) -&gt; toDoList.ListViewController"
+                  moduleName = "toDoList"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook1/Desktop/toDo%20very%20very%20final/ios-todo-app-elizamuraya/toDoList/toDoList/ListViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "220">
+               </Location>
+               <Location
+                  uuid = "C93FDF88-FB36-449E-8DDF-3F1C01C59418 - cf2acaa91f73ca82"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "toDoList.ListViewController.init(coder: __C.NSCoder) -&gt; Swift.Optional&lt;toDoList.ListViewController&gt;"
+                  moduleName = "toDoList"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook1/Desktop/toDo%20very%20very%20final/ios-todo-app-elizamuraya/toDoList/toDoList/ListViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "196">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6CEDD92B-3F3C-4E79-9F23-D9DDBCE07584"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "toDoList/TaskViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "349"
+            endingLineNumber = "349"
+            landmarkName = "saveTask()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

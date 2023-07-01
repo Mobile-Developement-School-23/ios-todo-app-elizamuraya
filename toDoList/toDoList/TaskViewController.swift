@@ -1,13 +1,7 @@
-//
-//  ViewController.swift
-//  ToDoProject
-//
-//  Created by MacBookAir on 10.06.2023.
-//
-
 import UIKit
 
 class TaskViewController: UIViewController, UITextViewDelegate {
+    weak var delegate: ListViewControllerDelegate?
     
     // MARK: – Private Properties
     
@@ -16,6 +10,8 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
+    
+    private let placeholder = "Что надо сделать?"
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -27,16 +23,16 @@ class TaskViewController: UIViewController, UITextViewDelegate {
     private lazy var textView: UITextView = {
         let textView = UITextView()
         textView.font = .systemFont(ofSize: 17)
-        textView.textContainerInset = UIEdgeInsets(top: 17, left: 16, bottom: 12, right: 16)
+        textView.textContainerInset = UIEdgeInsets(top: 34, left: 16, bottom: 12, right: 16)
         textView.textAlignment = .left
         textView.isScrollEnabled = false
         textView.layer.cornerRadius = 16
         textView.delegate = self
+        textView.text = placeholder
         textView.becomeFirstResponder()
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
     }()
-    
     
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
@@ -76,7 +72,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         separator.isHidden = true
         return separator
     }()
-
     
     private lazy var importanceLabel: UILabel = {
         let label = UILabel()
@@ -111,11 +106,13 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         } else {
             selectedImportance = nil
         }
+        
         segmentedControl.setTitle("нет", forSegmentAt: 1)
         segmentedControl.selectedSegmentIndex = 2
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         segmentedControl.heightAnchor.constraint(equalToConstant: 36).isActive = true
         segmentedControl.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        
         return segmentedControl
     }()
     
@@ -131,7 +128,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         return stackView
     }()
     
-    
     private var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
@@ -143,7 +139,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         return datePicker
     }()
     
-    
     private func updateDateButtonText() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
@@ -153,8 +148,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         dateString.setTitle(dateFormatter.string(from: selectedDate), for: .normal)
     }
     
-    
-    
     private lazy var toggleSwitch: UISwitch = {
         let toggleSwitch = UISwitch()
         toggleSwitch.translatesAutoresizingMaskIntoConstraints = false
@@ -162,7 +155,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         return toggleSwitch
     }()
     
-    
+
     
     private lazy var newStack: UIStackView = {
         
@@ -203,19 +196,66 @@ class TaskViewController: UIViewController, UITextViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = true
         
         setupViews()
         setupConstraints()
         setupAppearance()
-        
-        title = "Дело"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Отменить", style: .plain, target: self, action: #selector(dismissSelf))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(saveTask))
-        navigationItem.rightBarButtonItem?.tintColor = UIColor.lightGray
-        
+        setupNavigationBar()
+        textView.text = currentTodoItem?.text
         view.keyboardLayoutGuide.followsUndockedKeyboard = true
         initializeHideKeyboard()
+    }
+    private func setupNavigationBar() {
+        view.addSubview(navigationBar)
+        NSLayoutConstraint.activate([
+            navigationBar.heightAnchor.constraint(equalToConstant: 56),
+            navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+    }
+    private lazy var navigationBar: UINavigationBar = {
+        let navigationBar = UINavigationBar()
+        navigationBar.translatesAutoresizingMaskIntoConstraints = false
+        let cancelItem = UIBarButtonItem(primaryAction: UIAction(title: "Отменить") { [weak self] _ in
+            self?.dismiss(animated: true)
+        })
+        let titleItem = UINavigationItem(title: "Дело")
+        let saveItem = UIBarButtonItem(primaryAction: UIAction(title: "Сохранить") { [weak self] _ in
+            self?.saveTask()
+            self?.dismiss(animated: true)
+        })
         
+        if textView.text.isEmpty {
+            saveItem.tintColor = UIColor.lightGray
+            deleteButton.setTitleColor(.lightGray, for: .normal)
+        } else {
+            saveItem.tintColor = UIColor.systemBlue
+            deleteButton.setTitleColor(.red, for: .normal)
+        }
+        
+        saveItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 17)], for: .normal)
+        saveItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 17)], for: .disabled)
+        
+        titleItem.rightBarButtonItem = saveItem
+        titleItem.leftBarButtonItem = cancelItem
+        titleItem.rightBarButtonItem?.isEnabled = false
+        navigationBar.setItems([titleItem], animated: false)
+        navigationBar.shadowImage = UIImage()
+        return navigationBar
+    }()
+    
+    private func enabledButtons() {
+          guard let saveButton = navigationBar.items?.first?.rightBarButtonItem else { return }
+          if !textView.text.isEmpty, textView.text != placeholder, !saveButton.isEnabled {
+              saveButton.isEnabled = true
+              deleteButton.isEnabled = true
+          }
+      }
+    
+    @objc private func dismissSelf() {
+        dismiss(animated: true, completion: nil)
     }
     
     // MARK: - Methods
@@ -229,9 +269,24 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         super.viewWillDisappear(animated)
     }
     
+    func textViewDidBeginEditing(_ textView: UITextView) {
+           if textView.text == placeholder {
+               textView.text = ""
+               textView.textColor = UIColor(named: "text")
+           }
+       }
+
+       func textViewDidEndEditing(_ textView: UITextView) {
+           if textView.text.isEmpty {
+               textView.text = placeholder
+               textView.textColor = .lightGray
+               navigationBar.items?.first?.rightBarButtonItem?.isEnabled = false
+               deleteButton.isEnabled = false
+           }
+       }
+    
     private func setupAppearance() {
         updateButtonColor()
-        
         if traitCollection.userInterfaceStyle == .dark {
             stackViewMain.backgroundColor = #colorLiteral(red: 0.1129594222, green: 0.1133299991, blue: 0.1243038848, alpha: 1)
             textView.backgroundColor = #colorLiteral(red: 0.1930471361, green: 0.19353351, blue: 0.2080074847, alpha: 1)
@@ -240,7 +295,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
             deleteButton.backgroundColor = #colorLiteral(red: 0.1930471361, green: 0.19353351, blue: 0.2080074847, alpha: 1)
             segmentedControl.backgroundColor = .black
         } else {
-            stackViewMain.backgroundColor = #colorLiteral(red: 0.969507277, green: 0.9645399451, blue: 0.9473810792, alpha: 1)
+            stackViewMain.backgroundColor = #colorLiteral(red: 0.968627451, green: 0.9647058824, blue: 0.9490196078, alpha: 1)
             textView.backgroundColor = .white
             textView.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
             stackView.backgroundColor = .white
@@ -249,21 +304,22 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         }
     }
     
-    
     private func updateButtonColor() {
-        if textView.text.isEmpty {
-            navigationItem.rightBarButtonItem?.tintColor = UIColor.lightGray
-            deleteButton.setTitleColor(.lightGray, for: .normal)
-        } else {
+        if !textView.text.isEmpty {
             navigationItem.rightBarButtonItem?.tintColor = UIColor.systemBlue
             deleteButton.setTitleColor(.red, for: .normal)
+            
+        } else {
+            
+            navigationItem.rightBarButtonItem?.tintColor = UIColor.lightGray
+            deleteButton.setTitleColor(.lightGray, for: .normal)
         }
     }
     
-    func textViewDidChange(_ textView: UITextView) {
-        updateButtonColor()
-    }
-    
+    func textViewDidChange(_: UITextView) {
+            enabledButtons()
+        }
+
     func initializeHideKeyboard(){
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissMyKeyboard))
         view.addGestureRecognizer(tap)
@@ -286,47 +342,23 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         }
     }
     
-    @objc private func dismissSelf() {
-        dismiss(animated: true, completion: nil)
-    }
-    
     // MARK: – JSON
     
-    var fileCache = FileCache()
     var currentTodoItem: TodoItem?
-    
-    @objc private func deleteTask() {
-        guard let taskText = textView.text, !taskText.isEmpty else { return }
-        print("deleteTask")
-        var allItems = fileCache.getAll()
-        allItems.popLast()
-        
-        do {
-            try fileCache.saveTaskJSON(toFile: "todoItems")
-            
-        } catch {
-            print("Error saving task to JSON: \(error)")
-        }
-        print(allItems)
-        dismissSelf()
-    }
-    
     
     @objc func saveTask() {
         guard let taskText = textView.text, !taskText.isEmpty else { return }
+
         let todoItem = TodoItem(text: taskText, importance: .normal, dateCreated: Date(), dateChanged: nil)
-        self.currentTodoItem = todoItem
-        fileCache.add(todoItem)
-        do {
-            try fileCache.saveTaskJSON(toFile: "todoItems")
-            
-        } catch {
-            print("Error saving task to JSON: \(error)")
-        }
+        delegate?.saveItem(todoItem)
         dismissSelf()
     }
     
-    
+    @objc private func deleteTask() {
+        self.dismiss(animated: true)
+        dismissSelf()
+    }
+ 
     // MARK: - setupViews
     
     func setupViews() {
@@ -349,7 +381,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         
         row2StackView.addArrangedSubview(leftStack)
         row2StackView.addArrangedSubview(toggleSwitch)
-        
     }
 }
 
