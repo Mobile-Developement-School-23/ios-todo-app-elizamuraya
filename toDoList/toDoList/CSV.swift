@@ -28,7 +28,7 @@ extension TodoItem {
         }
         
         let isCompletedString = components[4]
-        let dateCreatedTimestamp = TimeInterval(components[5])
+       // let dateCreatedTimestamp = TimeInterval(components[5])
         let dateChangedTimeStamp = TimeInterval(components[6])
         
         

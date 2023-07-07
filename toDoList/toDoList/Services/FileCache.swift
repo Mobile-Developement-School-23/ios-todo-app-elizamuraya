@@ -3,7 +3,7 @@ import Foundation
 protocol DataCache {
     var items: [String: TodoItem] { get }
     var itemsSorted: [TodoItem] { get  }
-    var isDirty: Bool { get }
+    var isDirty: Bool { get set }
     
     func add(_ item: TodoItem)
     func save(toFile file: String, format: FormatToSave) throws
@@ -24,11 +24,10 @@ enum FileCacheError: Error {
 final class FileCache: DataCache {
     
     private(set) var items: [String: TodoItem] = [:]
+    var isDirty: Bool = false
     var itemsSorted: [TodoItem] {
         items.sorted { $0.value.dateCreated < $1.value.dateCreated }.map { $1 }
     }
-    
-    var isDirty: Bool = false
     
     // MARK: – ADD ITEM
     func add(_ item: TodoItem) {

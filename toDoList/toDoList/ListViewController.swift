@@ -86,23 +86,24 @@ class ListViewController: UIViewController {
         setupViews()
         setupConstraints()
         setupActivityIndicator()
-        requestAllList()
+       // requestAllList()
         view.backgroundColor = #colorLiteral(red: 0.968627451, green: 0.9647058824, blue: 0.9490196078, alpha: 1)
         navigationItem.title = "Мои дела"
         navigationController?.navigationBar.layoutMargins = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 0)
         tableView.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseId)
         try! fileCache.save(toFile: defaultName, format: .json)
         loadItems()
+
         
         
-        Task {
-                    do {
-                        try await networkFetcher.getAllItems()
-                        try await networkFetcher.updateAllItems()
-                    } catch {
-                        debugPrint(error)
-                    }
-                }
+//        Task {
+//                    do {
+//                        try await networkFetcher.getAllItems()
+//                        try await networkFetcher.updateAllItems()
+//                    } catch {
+//                        debugPrint(error)
+//                    }
+//                }
     }
     
     private func setupActivityIndicator() {
@@ -115,27 +116,6 @@ class ListViewController: UIViewController {
                activityIndicatorView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
            ])
        }
-
-    private func requestAllList() {
-        DispatchQueue.main.async {
-            self.view.isUserInteractionEnabled = false
-            self.activityIndicatorView.startAnimating()
-        }
-            Task {
-                do {
-                    let items = try await networkFetcher.getAllItems()
-                    DispatchQueue.main.async {
-                        self.view.isUserInteractionEnabled = true
-                        self.activityIndicatorView.stopAnimating()
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        self.view.isUserInteractionEnabled = true
-                        self.activityIndicatorView.stopAnimating()
-                    }
-                }
-            }
-        }
     
     
     
@@ -154,7 +134,7 @@ class ListViewController: UIViewController {
     }
     
     private func loadItems() {
-        
+       
         Task {
                     do {
                         let toDoItems = try await networkFetcher.getAllItems()
@@ -181,6 +161,7 @@ class ListViewController: UIViewController {
 }
 
 extension ListViewController: ListViewControllerDelegate {
+    
     func saveItem(_ todoItem: TodoItem) {
         fileCache.add(todoItem)
         
@@ -198,6 +179,7 @@ extension ListViewController: ListViewControllerDelegate {
             debugPrint("error")
         }
         tableView.reloadData()
+       // setupActivityIndicator()
     }
     
     func deleteItem(_ id: String,_ reloadTable: Bool = true) {
@@ -274,7 +256,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseId, for: indexPath) as! ListCell
         
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "ellipse"), for: .normal)
+        button.setImage(UIImage(named: "Ellipse"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(changeImageButtonPressed(sender:)), for: .touchUpInside)
         cell.contentView.addSubview(button)
