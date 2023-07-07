@@ -1,13 +1,12 @@
 import UIKit
 
-
 protocol ListViewControllerDelegate: AnyObject {
     func saveItem(_ todoItem: TodoItem)
     func deleteItem(_ id: String,_ reloadTable: Bool)
 }
 
 class ListViewController: UIViewController {
-    private let fileCache: DataCache = FileCache()
+    private var fileCache: DataCache = FileCache()
     private var items: [TodoItem] = []
     let networkFetcher = NetworkFetcher()
     private let activityIndicatorView = UIActivityIndicatorView(style: .large)
@@ -86,38 +85,27 @@ class ListViewController: UIViewController {
         setupViews()
         setupConstraints()
         setupActivityIndicator()
-       // requestAllList()
+        // requestAllList()
         view.backgroundColor = #colorLiteral(red: 0.968627451, green: 0.9647058824, blue: 0.9490196078, alpha: 1)
         navigationItem.title = "Мои дела"
         navigationController?.navigationBar.layoutMargins = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 0)
         tableView.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseId)
         try! fileCache.save(toFile: defaultName, format: .json)
         loadItems()
-
-        
-        
-//        Task {
-//                    do {
-//                        try await networkFetcher.getAllItems()
-//                        try await networkFetcher.updateAllItems()
-//                    } catch {
-//                        debugPrint(error)
-//                    }
-//                }
     }
     
+    // MARK: Actions
+    
     private func setupActivityIndicator() {
-           activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
-           activityIndicatorView.color = .purple
-           view.addSubview(activityIndicatorView)
-
-           NSLayoutConstraint.activate([
-               activityIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-               activityIndicatorView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-           ])
-       }
-    
-    
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicatorView.color = .purple
+        view.addSubview(activityIndicatorView)
+        
+        NSLayoutConstraint.activate([
+            activityIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicatorView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
     
     private func setupViews() {
         view.addSubview(tableView)
@@ -126,113 +114,131 @@ class ListViewController: UIViewController {
         headerView.addSubview(tasksDoneButton)
     }
     
-    // MARK: Actions
-    
-    @objc func openTaskViewController() {
-        let taskViewController = TaskViewController()
-        navigationController?.present(taskViewController, animated: true)
-    }
-    
     private func loadItems() {
-       
+        activityIndicatorView.startAnimating()
         Task {
-                    do {
-                        let toDoItems = try await networkFetcher.getAllItems()
-                        for toDoItem in toDoItems {
-                            fileCache.add(toDoItem)
-                        }
-                        tableView.reloadData()
-                        //updateDoneTasks()
-                    } catch {
-                        debugPrint(error)
-                    }
+            do {
+                let toDoItems = try await networkFetcher.getAllItems()
+                for toDoItem in toDoItems {
+                    fileCache.add(toDoItem)
                 }
-        
-//        do {
-//            try fileCache.load(from: defaultName, format: .json)
-//            tableView.reloadData()
-//        } catch {
-//            debugPrint("error")
-//        }
- }
-    
-    
-       
+                fileCache.isDirty = false
+                tableView.reloadData()
+                activityIndicatorView.stopAnimating()
+            } catch {
+                debugPrint(error)
+                do {
+                    try fileCache.load(from: defaultName, format: .json)
+                    tableView.reloadData()
+                } catch {
+                    debugPrint("error")
+                }
+                fileCache.isDirty = true
+                activityIndicatorView.stopAnimating()
+            }
+        }
+    }
 }
 
 extension ListViewController: ListViewControllerDelegate {
     
     func saveItem(_ todoItem: TodoItem) {
         fileCache.add(todoItem)
-        
-        Task {
-                   do {
-                       try await networkFetcher.addItem()
-                   } catch {
-                       debugPrint(error)
-                   }
-               }
-        
+
         do {
             try fileCache.save(toFile: defaultName, format: .json)
         } catch {
             debugPrint("error")
         }
         tableView.reloadData()
-       // setupActivityIndicator()
+        
+        guard !fileCache.isDirty else {
+            updateAllItems()
+            return
+        }
+        
+        Task.init {
+            self.activityIndicatorView.startAnimating()
+            var retryCount = 0
+            let maxRetryAttempts = 5
+            var delay = 1.0
+            while retryCount < maxRetryAttempts {
+                do {
+                    self.activityIndicatorView.stopAnimating()
+                    try await networkFetcher.addItem(toDoItem: todoItem)
+                    break
+                } catch {
+                    debugPrint(error)
+                    fileCache.isDirty = true
+                    retryCount += 1
+                    delay *= 2.0
+                    
+                    print(delay)
+                    await Task.sleep(UInt64(delay * 1_000_000_000)) // Усыпляет задачу на заданное количество секунд
+                    continue
+                }
+            }
+        }
     }
     
     func deleteItem(_ id: String,_ reloadTable: Bool = true) {
-//        if let toDoItem = fileCache.items.first(where: { $0.value.id == id }), toDoItem.value.isCompleted {
-//            countImage -= 1
-//        }
         fileCache.remove(id: id)
-        
-        Task {
-                    do {
-                        try await networkFetcher.removeItem(id: id)
-                    } catch {
-                        debugPrint(error)
-                    }
-                }
         
         do {
             try fileCache.save(toFile: defaultName, format: .json)
         } catch {
             debugPrint("error")
         }
-        if reloadTable {
-            tableView.reloadData()
-        }
-    }
-    func updateAllItems() {
-           Task {
-               do {
-                   try await networkFetcher.updateAllItems()
-               } catch {
-                   debugPrint(error)
-               }
-           }
-       }
-    func getItem(id: String) {
-            Task {
-                do {
-                    try await networkFetcher.getItem(id: id)
-                } catch {
-                    debugPrint(error)
-                }
-            }
+        
+        if reloadTable { tableView.reloadData() }
+        guard !fileCache.isDirty else {
+            updateAllItems()
+            return
         }
         
-        func changeItem(id: String) {
-            Task {
-                do {
-                    try await networkFetcher.changeItem(id: id)
-                } catch {
-                    debugPrint(error)
-                }
+        Task {
+            do {
+                try await networkFetcher.removeItem(id: id)
+            } catch {
+                debugPrint(error)
+                fileCache.isDirty = true
             }
         }
+    }
+    
+    
+    func updateAllItems() {
+        Task {
+            do {
+                try await networkFetcher.updateAllItems()
+                fileCache.isDirty = false
+                tableView.reloadData()
+            } catch {
+                debugPrint(error)
+                fileCache.isDirty = true
+            }
+        }
+    }
+    
+    func getItem(id: String) {
+        Task {
+            do {
+                try await networkFetcher.getItem(id: id)
+            } catch {
+                debugPrint(error)
+            }
+        }
+    }
+    
+    func changeItem(id: String) {
+        Task {
+            do {
+                try await networkFetcher.changeItem(id: id)
+            } catch {
+                debugPrint(error)
+            }
+        }
+    }
 }
 
 extension ListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -286,7 +292,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         ])
         return cell
     }
-
+    
     @objc func changeImageButtonPressed(sender: UIButton) {
         let ellipse = UIImage(named: "Ellipse")
         let bounds = UIImage(named: "Bounds")

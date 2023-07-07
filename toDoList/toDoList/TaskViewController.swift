@@ -60,18 +60,18 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         let separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = true
         separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
-        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+       separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
         return separator
     }()
     
-    private lazy var separator2: UIView = {
-        let separator = UIView()
-        separator.translatesAutoresizingMaskIntoConstraints = true
-        separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
-        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
-        separator.isHidden = true
-        return separator
-    }()
+//    private lazy var separator2: UIView = {
+//        let separator = UIView()
+//        separator.translatesAutoresizingMaskIntoConstraints = true
+//        separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
+//       // separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+//        separator.isHidden = true
+//        return separator
+//    }()
     
     private lazy var importanceLabel: UILabel = {
         let label = UILabel()
@@ -154,19 +154,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         toggleSwitch.addTarget(self, action: #selector(toggleSwitchValueChanged), for: .valueChanged)
         return toggleSwitch
     }()
-    
-    
-//    private lazy var newStack: UIStackView = {
-//
-//        let newStack = UIStackView(arrangedSubviews: [separator2, datePicker])
-//        newStack.axis = .vertical
-//        newStack.spacing = 10
-//        newStack.translatesAutoresizingMaskIntoConstraints = false
-//
-//        return newStack
-//    }()
-    
-    
+
     private lazy var leftStack: UIStackView = {
         let makeBefore = UILabel()
         makeBefore.text = "Сделать до"

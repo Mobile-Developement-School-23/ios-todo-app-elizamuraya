@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		22412DA02A55700800F1DAB8 /* Networking Fetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22412D9F2A55700800F1DAB8 /* Networking Fetcher.swift */; };
+		22412DA02A55700800F1DAB8 /* Network Fetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22412D9F2A55700800F1DAB8 /* Network Fetcher.swift */; };
 		22412DA22A55749E00F1DAB8 /* RequestProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22412DA12A55749E00F1DAB8 /* RequestProcessor.swift */; };
 		22412DA42A55890700F1DAB8 /* TodoItem Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22412DA32A55890700F1DAB8 /* TodoItem Network.swift */; };
 		22412DA62A581DC100F1DAB8 /* URL Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22412DA52A581DC100F1DAB8 /* URL Session.swift */; };
@@ -28,7 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		22412D9F2A55700800F1DAB8 /* Networking Fetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Networking Fetcher.swift"; sourceTree = "<group>"; };
+		22412D9F2A55700800F1DAB8 /* Network Fetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network Fetcher.swift"; sourceTree = "<group>"; };
 		22412DA12A55749E00F1DAB8 /* RequestProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestProcessor.swift; sourceTree = "<group>"; };
 		22412DA32A55890700F1DAB8 /* TodoItem Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoItem Network.swift"; sourceTree = "<group>"; };
 		22412DA52A581DC100F1DAB8 /* URL Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL Session.swift"; sourceTree = "<group>"; };
@@ -64,8 +64,9 @@
 		22412D9E2A556FF000F1DAB8 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				22412DA52A581DC100F1DAB8 /* URL Session.swift */,
 				22412DA32A55890700F1DAB8 /* TodoItem Network.swift */,
-				22412D9F2A55700800F1DAB8 /* Networking Fetcher.swift */,
+				22412D9F2A55700800F1DAB8 /* Network Fetcher.swift */,
 				22412DA12A55749E00F1DAB8 /* RequestProcessor.swift */,
 			);
 			name = Network;
@@ -92,7 +93,6 @@
 			children = (
 				22A8F47B2A46678200029E03 /* AppDelegate.swift */,
 				22A8F47D2A46678200029E03 /* SceneDelegate.swift */,
-				22412DA52A581DC100F1DAB8 /* URL Session.swift */,
 				22412D9E2A556FF000F1DAB8 /* Network */,
 				22A8F4912A4668E300029E03 /* Models */,
 				22A8F49E2A466A5B00029E03 /* Screens */,
@@ -222,7 +222,7 @@
 				22A8F49D2A466A1F00029E03 /* ColorPickerController.swift in Sources */,
 				228166F52A4B531F007AA4A7 /* ListCell.swift in Sources */,
 				22412DA62A581DC100F1DAB8 /* URL Session.swift in Sources */,
-				22412DA02A55700800F1DAB8 /* Networking Fetcher.swift in Sources */,
+				22412DA02A55700800F1DAB8 /* Network Fetcher.swift in Sources */,
 				22A8F4A02A466A8800029E03 /* FileCache.swift in Sources */,
 				228166F72A4B5AE8007AA4A7 /* TransitionManager.swift in Sources */,
 				22A8F4932A46690E00029E03 /* JSON.swift in Sources */,

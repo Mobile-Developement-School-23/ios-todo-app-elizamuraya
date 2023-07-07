@@ -61,14 +61,6 @@ extension TodoItem {
                 case .high:
                     importance = "important"
             }
-//            var deadline: Int?
-//            if let deadlineTimeInterval = self.deadline?.timeIntervalSinceReferenceDate {
-//                deadline = Int(deadlineTimeInterval)
-//            }
-//            var changed: Int?
-//            if let changedTimeInterval = self.dateChanged?.timeIntervalSinceReferenceDate{
-//                changed = Int(changedTimeInterval)
-//            }
             let created = Int(self.dateCreated.timeIntervalSinceReferenceDate)
             let networkItem = NetworkToDoItem(id: id, text: text, importance: importance, done: isCompleted, createdAt: created)
             return networkItem

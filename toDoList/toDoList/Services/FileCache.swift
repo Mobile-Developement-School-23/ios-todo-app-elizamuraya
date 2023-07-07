@@ -49,7 +49,6 @@ final class FileCache: DataCache {
             let jsonData = try JSONSerialization.data(withJSONObject: itemsJSON, options: .prettyPrinted)
             try jsonData.write(to: url, options: .atomic)
         }
-       // isDirty = false
     }
     
     // MARK: – LOAD ITEM
@@ -78,24 +77,6 @@ final class FileCache: DataCache {
     @discardableResult
     func remove(id: String) -> TodoItem? {
             let removedItem = items.removeValue(forKey: id)
-            if removedItem != nil {
-              //  isDirty = true
-            }
             return removedItem
-        }
-//    func remove(id: String) -> TodoItem? {
-//        defer { items[id] = nil }
-//        return items[id]
-//    }
-    
-    
-    func synchronize() throws {
-            if isDirty {
-                let dir = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-                let url = dir.appendingPathComponent("sync.json")
-                let itemsJSON = items.map(\.value.json)
-                let jsonData = try JSONSerialization.data(withJSONObject: itemsJSON, options: .prettyPrinted)
-                try jsonData.write(to: url, options: .atomic)
-            }
         }
 }

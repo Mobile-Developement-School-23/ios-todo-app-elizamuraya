@@ -11,9 +11,7 @@ protocol ColorPickerDelegate: AnyObject {
 }
 
 class ColorPickerView: UIView {
-    
     weak var delegate: ColorPickerDelegate?
-    
     private let colors: [UIColor] = [.red, .blue, .green, .yellow, .orange, .purple]
     private let buttonSize: CGFloat = 40.0
     private let buttonSpacing: CGFloat = 8.0
