@@ -3,6 +3,8 @@ import Foundation
 protocol DataCache {
     var items: [String: TodoItem] { get }
     var itemsSorted: [TodoItem] { get  }
+    var isDirty: Bool { get }
+    
     func add(_ item: TodoItem)
     func save(toFile file: String, format: FormatToSave) throws
     func load(from file: String, format: FormatToSave) throws
@@ -20,10 +22,13 @@ enum FileCacheError: Error {
 }
 
 final class FileCache: DataCache {
+    
     private(set) var items: [String: TodoItem] = [:]
     var itemsSorted: [TodoItem] {
         items.sorted { $0.value.dateCreated < $1.value.dateCreated }.map { $1 }
     }
+    
+    var isDirty: Bool = false
     
     // MARK: – ADD ITEM
     func add(_ item: TodoItem) {
@@ -45,6 +50,7 @@ final class FileCache: DataCache {
             let jsonData = try JSONSerialization.data(withJSONObject: itemsJSON, options: .prettyPrinted)
             try jsonData.write(to: url, options: .atomic)
         }
+       // isDirty = false
     }
     
     // MARK: – LOAD ITEM
@@ -72,7 +78,25 @@ final class FileCache: DataCache {
     // MARK: – DELETE ITEM
     @discardableResult
     func remove(id: String) -> TodoItem? {
-        defer { items[id] = nil }
-        return items[id]
-    }
+            let removedItem = items.removeValue(forKey: id)
+            if removedItem != nil {
+              //  isDirty = true
+            }
+            return removedItem
+        }
+//    func remove(id: String) -> TodoItem? {
+//        defer { items[id] = nil }
+//        return items[id]
+//    }
+    
+    
+    func synchronize() throws {
+            if isDirty {
+                let dir = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+                let url = dir.appendingPathComponent("sync.json")
+                let itemsJSON = items.map(\.value.json)
+                let jsonData = try JSONSerialization.data(withJSONObject: itemsJSON, options: .prettyPrinted)
+                try jsonData.write(to: url, options: .atomic)
+            }
+        }
 }
