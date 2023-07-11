@@ -51,7 +51,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         stackView.alignment = .center
         stackView.distribution = .fill
         stackView.spacing = 16
-        stackView.heightAnchor.constraint(equalToConstant: 56)
+     //   stackView.heightAnchor.constraint(equalToConstant: 56)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -60,18 +60,18 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         let separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = true
         separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
-        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+       separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
         return separator
     }()
     
-    private lazy var separator2: UIView = {
-        let separator = UIView()
-        separator.translatesAutoresizingMaskIntoConstraints = true
-        separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
-        separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
-        separator.isHidden = true
-        return separator
-    }()
+//    private lazy var separator2: UIView = {
+//        let separator = UIView()
+//        separator.translatesAutoresizingMaskIntoConstraints = true
+//        separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
+//       // separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+//        separator.isHidden = true
+//        return separator
+//    }()
     
     private lazy var importanceLabel: UILabel = {
         let label = UILabel()
@@ -144,7 +144,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .none
         let selectedDate = datePicker.date
-        var dateString = UIButton()
+        let dateString = UIButton()
         dateString.setTitle(dateFormatter.string(from: selectedDate), for: .normal)
     }
     
@@ -154,20 +154,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         toggleSwitch.addTarget(self, action: #selector(toggleSwitchValueChanged), for: .valueChanged)
         return toggleSwitch
     }()
-    
 
-    
-    private lazy var newStack: UIStackView = {
-        
-        let newStack = UIStackView(arrangedSubviews: [separator2, datePicker])
-        newStack.axis = .vertical
-        newStack.spacing = 10
-        newStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        return newStack
-    }()
-    
-    
     private lazy var leftStack: UIStackView = {
         let makeBefore = UILabel()
         makeBefore.text = "Сделать до"
@@ -175,11 +162,11 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         
         let leftStack = UIStackView(arrangedSubviews: [makeBefore, datePicker])
         leftStack.axis = .vertical
-        leftStack.distribution = .fillEqually
+        leftStack.distribution = .fill
         leftStack.alignment = .leading
         
         makeBefore.leadingAnchor.constraint(equalTo: leftStack.leadingAnchor).isActive = true
-        makeBefore.topAnchor.constraint(equalTo: leftStack.topAnchor, constant: 16).isActive = true
+        makeBefore.topAnchor.constraint(equalTo: leftStack.topAnchor).isActive = true
         return leftStack
     }()
     
@@ -201,20 +188,11 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         setupViews()
         setupConstraints()
         setupAppearance()
-        setupNavigationBar()
         textView.text = currentTodoItem?.text
         view.keyboardLayoutGuide.followsUndockedKeyboard = true
         initializeHideKeyboard()
     }
-    private func setupNavigationBar() {
-        view.addSubview(navigationBar)
-        NSLayoutConstraint.activate([
-            navigationBar.heightAnchor.constraint(equalToConstant: 56),
-            navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-        ])
-    }
+
     private lazy var navigationBar: UINavigationBar = {
         let navigationBar = UINavigationBar()
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
@@ -365,6 +343,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         
         view.addSubview(stackViewMain)
         view.addSubview(scrollView)
+        view.addSubview(navigationBar)
         
         stackViewMain.addSubview(scrollView)
         stackViewMain.addSubview(textView)
@@ -374,7 +353,7 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         stackView.addArrangedSubview(row1StackView)
         stackView.addArrangedSubview(separator)
         stackView.addArrangedSubview(row2StackView)
-        stackView.addArrangedSubview(newStack)
+      //  stackView.addArrangedSubview(newStack)
         
         row1StackView.addArrangedSubview(importanceLabel)
         row1StackView.addArrangedSubview(segmentedControl)
@@ -402,14 +381,19 @@ extension TaskViewController {
             stackViewMain.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor),
             stackViewMain.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
             
-            textView.topAnchor.constraint(equalTo: stackViewMain.topAnchor, constant: 72),
-            textView.leadingAnchor.constraint(equalTo: stackViewMain.leadingAnchor, constant: 16),
-            textView.trailingAnchor.constraint(equalTo: stackViewMain.trailingAnchor, constant: -16),
+            navigationBar.heightAnchor.constraint(equalToConstant: 56),
+            navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            textView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: 16),
+            textView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
+            textView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
             textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120),
             
             stackView.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
-            stackView.leadingAnchor.constraint(equalTo: stackViewMain.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: stackViewMain.trailingAnchor, constant: -16),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
             
             importanceLabel.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 16),
             leftStack.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 16),
@@ -432,7 +416,7 @@ extension TaskViewController {
             
             deleteButton.heightAnchor.constraint(equalToConstant: 50),
             deleteButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
-            deleteButton.leadingAnchor.constraint(equalTo: stackViewMain.leadingAnchor, constant: 16),
+            deleteButton.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
             deleteButton.trailingAnchor.constraint(equalTo: stackViewMain.trailingAnchor, constant: -16),
         ])
     }

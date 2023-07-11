@@ -3,6 +3,8 @@ import Foundation
 protocol DataCache {
     var items: [String: TodoItem] { get }
     var itemsSorted: [TodoItem] { get  }
+    var isDirty: Bool { get set }
+    
     func add(_ item: TodoItem)
     func save(toFile file: String, format: FormatToSave) throws
     func load(from file: String, format: FormatToSave) throws
@@ -20,7 +22,9 @@ enum FileCacheError: Error {
 }
 
 final class FileCache: DataCache {
+    
     private(set) var items: [String: TodoItem] = [:]
+    var isDirty: Bool = false
     var itemsSorted: [TodoItem] {
         items.sorted { $0.value.dateCreated < $1.value.dateCreated }.map { $1 }
     }
@@ -72,7 +76,7 @@ final class FileCache: DataCache {
     // MARK: – DELETE ITEM
     @discardableResult
     func remove(id: String) -> TodoItem? {
-        defer { items[id] = nil }
-        return items[id]
-    }
+            let removedItem = items.removeValue(forKey: id)
+            return removedItem
+        }
 }

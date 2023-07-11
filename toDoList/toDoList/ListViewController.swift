@@ -6,8 +6,10 @@ protocol ListViewControllerDelegate: AnyObject {
 }
 
 class ListViewController: UIViewController {
-    private let fileCache: DataCache = FileCache()
+    private var fileCache: DataCache = FileCache()
     private var items: [TodoItem] = []
+    let networkFetcher = NetworkFetcher()
+    private let activityIndicatorView = UIActivityIndicatorView(style: .large)
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -82,12 +84,27 @@ class ListViewController: UIViewController {
         super.viewDidLoad()
         setupViews()
         setupConstraints()
+        setupActivityIndicator()
+        // requestAllList()
         view.backgroundColor = #colorLiteral(red: 0.968627451, green: 0.9647058824, blue: 0.9490196078, alpha: 1)
         navigationItem.title = "Мои дела"
         navigationController?.navigationBar.layoutMargins = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 0)
         tableView.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseId)
         try! fileCache.save(toFile: defaultName, format: .json)
         loadItems()
+    }
+    
+    // MARK: Actions
+    
+    private func setupActivityIndicator() {
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicatorView.color = .purple
+        view.addSubview(activityIndicatorView)
+        
+        NSLayoutConstraint.activate([
+            activityIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicatorView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
     
     private func setupViews() {
@@ -97,46 +114,129 @@ class ListViewController: UIViewController {
         headerView.addSubview(tasksDoneButton)
     }
     
-    // MARK: Actions
-    
-    @objc func openTaskViewController() {
-        let taskViewController = TaskViewController()
-        navigationController?.present(taskViewController, animated: true)
-    }
-    
     private func loadItems() {
-        do {
-            try fileCache.load(from: defaultName, format: .json)
-            tableView.reloadData()
-        } catch {
-            debugPrint("error")
+        activityIndicatorView.startAnimating()
+        Task {
+            do {
+                let toDoItems = try await networkFetcher.getAllItems()
+                for toDoItem in toDoItems {
+                    fileCache.add(toDoItem)
+                }
+                fileCache.isDirty = false
+                tableView.reloadData()
+                activityIndicatorView.stopAnimating()
+            } catch {
+                debugPrint(error)
+                do {
+                    try fileCache.load(from: defaultName, format: .json)
+                    tableView.reloadData()
+                } catch {
+                    debugPrint("error")
+                }
+                fileCache.isDirty = true
+                activityIndicatorView.stopAnimating()
+            }
         }
     }
 }
 
 extension ListViewController: ListViewControllerDelegate {
+    
     func saveItem(_ todoItem: TodoItem) {
         fileCache.add(todoItem)
+
         do {
             try fileCache.save(toFile: defaultName, format: .json)
         } catch {
             debugPrint("error")
         }
         tableView.reloadData()
+        
+        guard !fileCache.isDirty else {
+            updateAllItems()
+            return
+        }
+        
+        Task.init {
+            self.activityIndicatorView.startAnimating()
+            var retryCount = 0
+            let maxRetryAttempts = 5
+            var delay = 1.0
+            while retryCount < maxRetryAttempts {
+                do {
+                    self.activityIndicatorView.stopAnimating()
+                    try await networkFetcher.addItem(toDoItem: todoItem)
+                    break
+                } catch {
+                    debugPrint(error)
+                    fileCache.isDirty = true
+                    retryCount += 1
+                    delay *= 2.0
+                    
+                    print(delay)
+                    await Task.sleep(UInt64(delay * 1_000_000_000)) // Усыпляет задачу на заданное количество секунд
+                    continue
+                }
+            }
+        }
     }
     
     func deleteItem(_ id: String,_ reloadTable: Bool = true) {
-//        if let toDoItem = fileCache.items.first(where: { $0.value.id == id }), toDoItem.value.isCompleted {
-//            countImage -= 1
-//        }
         fileCache.remove(id: id)
+        
         do {
             try fileCache.save(toFile: defaultName, format: .json)
         } catch {
             debugPrint("error")
         }
-        if reloadTable {
-            tableView.reloadData()
+        
+        if reloadTable { tableView.reloadData() }
+        guard !fileCache.isDirty else {
+            updateAllItems()
+            return
+        }
+        
+        Task {
+            do {
+                try await networkFetcher.removeItem(id: id)
+            } catch {
+                debugPrint(error)
+                fileCache.isDirty = true
+            }
+        }
+    }
+    
+    
+    func updateAllItems() {
+        Task {
+            do {
+                try await networkFetcher.updateAllItems()
+                fileCache.isDirty = false
+                tableView.reloadData()
+            } catch {
+                debugPrint(error)
+                fileCache.isDirty = true
+            }
+        }
+    }
+    
+    func getItem(id: String) {
+        Task {
+            do {
+                try await networkFetcher.getItem(id: id)
+            } catch {
+                debugPrint(error)
+            }
+        }
+    }
+    
+    func changeItem(id: String) {
+        Task {
+            do {
+                try await networkFetcher.changeItem(id: id)
+            } catch {
+                debugPrint(error)
+            }
         }
     }
 }
@@ -162,7 +262,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseId, for: indexPath) as! ListCell
         
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "ellipse"), for: .normal)
+        button.setImage(UIImage(named: "Ellipse"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(changeImageButtonPressed(sender:)), for: .touchUpInside)
         cell.contentView.addSubview(button)
@@ -192,24 +292,23 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         ])
         return cell
     }
-
+    
     @objc func changeImageButtonPressed(sender: UIButton) {
         let ellipse = UIImage(named: "Ellipse")
         let bounds = UIImage(named: "Bounds")
-        
         
         if let cell = sender.superview?.superview as? ListCell,
            let indexPath = tableView.indexPath(for: cell) {
             if sender.image(for: .normal)?.pngData() == ellipse?.pngData() {
                 var currentItem = fileCache.itemsSorted[indexPath.row]
                 currentItem.isCompleted = true
-                
                 sender.setImage(bounds, for: .normal)
                 countImage += 1
                 
                 let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: cell.textLabel?.text ?? "")
                 attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
                 cell.textLabel?.attributedText = attributeString
+                
             } else {
                 var currentItem = fileCache.itemsSorted[indexPath.row]
                 currentItem.isCompleted = false
@@ -333,3 +432,5 @@ extension ListViewController: UIViewControllerTransitioningDelegate {
         return CustomTransitionAnimator()
     }
 }
+
+
