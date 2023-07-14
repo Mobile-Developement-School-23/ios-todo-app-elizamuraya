@@ -1,4 +1,5 @@
 import UIKit
+import CoreData
 
 protocol ListViewControllerDelegate: AnyObject {
     func saveItem(_ todoItem: TodoItem)
@@ -6,10 +7,18 @@ protocol ListViewControllerDelegate: AnyObject {
 }
 
 class ListViewController: UIViewController {
-    private var fileCache: DataCache = FileCache()
-    private var items: [TodoItem] = []
+    private var fileCache: DataCache = FileCache(context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext)
+    //private var fileCache = FileCache()
     let networkFetcher = NetworkFetcher()
+    
+   // var container: NSPersistentContainer!
+   // let context = container.viewContext
+   // let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    private var items: [TodoItem] = []
+   
     private let activityIndicatorView = UIActivityIndicatorView(style: .large)
+    
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -47,6 +56,7 @@ class ListViewController: UIViewController {
             taskViewController.delegate = self
             self?.present(taskViewController, animated: true)
         }))
+
         addButton.translatesAutoresizingMaskIntoConstraints = false
         addButton.layer.shadowColor = UIColor.black.cgColor
         addButton.layer.shadowOffset = CGSize(width: 0, height: 8)
@@ -90,8 +100,23 @@ class ListViewController: UIViewController {
         navigationItem.title = "Мои дела"
         navigationController?.navigationBar.layoutMargins = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 0)
         tableView.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseId)
-        try! fileCache.save(toFile: defaultName, format: .json)
         loadItems()
+        
+//        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+//                   fatalError("Failed to access AppDelegate")
+//               }
+              // container = appDelegate.persistentContainer
+            //   try! fileCache.save(toFile: defaultName, format: .json)
+               
+////        guard container != nil else {
+////                   fatalError("This view needs a persistent container.")
+////               }
+//        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+//                   fatalError("Failed to access AppDelegate")
+//               }
+//               container = appDelegate.persistentContainer
+//      //  try! fileCache.save(toFile: defaultName, format: .json)
+//      loadItems()
     }
     
     // MARK: Actions
@@ -118,10 +143,19 @@ class ListViewController: UIViewController {
         activityIndicatorView.startAnimating()
         Task {
             do {
-                let toDoItems = try await networkFetcher.getAllItems()
-                for toDoItem in toDoItems {
-                    fileCache.add(toDoItem)
-                }
+                try await fileCache.loadFromCoreData()
+                //
+//                let items = try context.fetch(Entity.fetchRequest())
+//                guard let itemEntityDescription = NSEntityDescription.entity(forEntityName: "Entity", in: context) else {
+//                    return
+//                }
+             //   let item = Entity(entity: itemEntityDescription, insertInto: context)
+//                
+//
+                
+//                for toDoItem in toDoItems {
+//                    fileCache.add(toDoItem)
+//                }
                 fileCache.isDirty = false
                 tableView.reloadData()
                 activityIndicatorView.stopAnimating()
@@ -132,8 +166,9 @@ class ListViewController: UIViewController {
                     tableView.reloadData()
                 } catch {
                     debugPrint("error")
+                    fileCache.isDirty = true
                 }
-                fileCache.isDirty = true
+
                 activityIndicatorView.stopAnimating()
             }
         }
@@ -142,67 +177,94 @@ class ListViewController: UIViewController {
 
 extension ListViewController: ListViewControllerDelegate {
     
-    func saveItem(_ todoItem: TodoItem) {
-        fileCache.add(todoItem)
+    nonisolated func saveItem(_ todoItem: TodoItem) {
+        //  fileCache.add(todoItem)
+        Task { @MainActor in
+            fileCache.add(todoItem)
+            do {
+                try await fileCache.insertInCoreData(toDoItem: todoItem)
+                //  try fileCache.save(toFile: defaultName, format: .json)
+                //  try fileCache.saveContext()
+                self.tableView.reloadData()
+            } catch {
+                debugPrint("error")
+            }
+       // tableView.reloadData()
+            
+            guard !fileCache.isDirty else {
+                updateAllItems()
+                return
+            }
+            
+        }
+    }
+//        Task.init {
+//            self.activityIndicatorView.startAnimating()
+//            var retryCount = 0
+//            let maxRetryAttempts = 5
+//            var delay = 1.0
+//            while retryCount < maxRetryAttempts {
+//                do {
+//                    self.activityIndicatorView.stopAnimating()
+//                   // fetchItemsFromCoreData()
+//                    //try await networkFetcher.addItem(toDoItem: todoItem)
+//                    break
+//                } catch {
+//                    debugPrint(error)
+//                    fileCache.isDirty = true
+//                    retryCount += 1
+//                    delay *= 2.0
+//
+//                    print(delay)
+//                    await Task.sleep(UInt64(delay * 1_000_000_000)) // Усыпляет задачу на заданное количество секунд
+//                    continue
+//                }
+//            }
+//        }
+ 
+    
+//    private func fetchItemsFromCoreData() {
+//        do {
+//            let request: NSFetchRequest<Entity> = Entity.fetchRequest()
+//            let entities = try context.fetch(request)
+//            let todoItems = entities.map(convertToTodoItem)
+//            items = todoItems
+//            tableView.reloadData()
+//            activityIndicatorView.stopAnimating()
+//        } catch {
+//            debugPrint(error)
+//            activityIndicatorView.stopAnimating()
+//        }
+//    }
 
-        do {
-            try fileCache.save(toFile: defaultName, format: .json)
-        } catch {
-            debugPrint("error")
-        }
-        tableView.reloadData()
-        
-        guard !fileCache.isDirty else {
-            updateAllItems()
-            return
-        }
-        
-        Task.init {
-            self.activityIndicatorView.startAnimating()
-            var retryCount = 0
-            let maxRetryAttempts = 5
-            var delay = 1.0
-            while retryCount < maxRetryAttempts {
+    
+    nonisolated func deleteItem(_ id: String,_ reloadTable: Bool = true) {
+        Task { @MainActor in
+            fileCache.remove(id: id)
+            
+            do {
+               // try await fileCache.deleteInCoreData(toDoItem: toDoItem)
+                tableView.reloadData()
+                try fileCache.save(toFile: defaultName, format: .json)
+            } catch {
+                debugPrint("error")
+            }
+            
+           // if reloadTable { tableView.reloadData() }
+            guard !fileCache.isDirty else {
+                updateAllItems()
+                return
+            }
+            activityIndicatorView.startAnimating()
+            
                 do {
-                    self.activityIndicatorView.stopAnimating()
-                    try await networkFetcher.addItem(toDoItem: todoItem)
-                    break
+                    try await networkFetcher.removeItem(id: id)
                 } catch {
                     debugPrint(error)
                     fileCache.isDirty = true
-                    retryCount += 1
-                    delay *= 2.0
-                    
-                    print(delay)
-                    await Task.sleep(UInt64(delay * 1_000_000_000)) // Усыпляет задачу на заданное количество секунд
-                    continue
                 }
-            }
-        }
-    }
-    
-    func deleteItem(_ id: String,_ reloadTable: Bool = true) {
-        fileCache.remove(id: id)
-        
-        do {
-            try fileCache.save(toFile: defaultName, format: .json)
-        } catch {
-            debugPrint("error")
-        }
-        
-        if reloadTable { tableView.reloadData() }
-        guard !fileCache.isDirty else {
-            updateAllItems()
-            return
-        }
-        
-        Task {
-            do {
-                try await networkFetcher.removeItem(id: id)
-            } catch {
-                debugPrint(error)
-                fileCache.isDirty = true
-            }
+            activityIndicatorView.stopAnimating()
+            
         }
     }
     

@@ -1,6 +1,7 @@
 import Foundation
+import CoreData
 
-enum Importance: String {
+public enum Importance: String {
    case low
    case normal
    case high
@@ -24,6 +25,23 @@ struct TodoItem {
         self.dateChanged = dateChanged
     }
 }
+
+
+//extension Importance {
+//    var state: State {
+//        // To get a State enum from stateValue, initialize the
+//        // State type from the Int32 value stateValue
+//        get {
+//            return State(rawValue: self.stateValue)!
+//        }
+//
+//        // newValue will be of type State, thus rawValue will
+//        // be an Int32 value that can be saved in Core Data
+//        set {
+//            self.stateValue = newValue.rawValue
+//        }
+//    }
+//}
 
 extension TodoItem {
     static func convert(from networkToDoItem: NetworkToDoItem) -> TodoItem {
@@ -65,4 +83,27 @@ extension TodoItem {
             let networkItem = NetworkToDoItem(id: id, text: text, importance: importance, done: isCompleted, createdAt: created)
             return networkItem
         }
+}
+
+extension TodoItem {
+    static func convert(from CDItem: Entity) -> TodoItem {
+        TodoItem(id: CDItem.id,
+                 text: CDItem.text,
+                 importance: Importance(rawValue: CDItem.importance) ?? .normal,
+                 deadline: CDItem.deadline,
+                 isCompleted: CDItem.isCompleted,
+                 dateCreated: CDItem.dateCreated,
+                 dateChanged: CDItem.dateChanged)
+    }
+    static func convert(from toDoItem: TodoItem, with context: NSManagedObjectContext) -> Entity {
+        let cdItem = Entity(context: context)
+        cdItem.id = toDoItem.id
+        cdItem.text = toDoItem.text
+        cdItem.importance = toDoItem.importance.rawValue
+        cdItem.deadline = toDoItem.deadline
+        cdItem.isCompleted = toDoItem.isCompleted
+        cdItem.dateCreated = toDoItem.dateCreated
+        cdItem.dateChanged = toDoItem.dateChanged
+        return cdItem
+    }
 }
