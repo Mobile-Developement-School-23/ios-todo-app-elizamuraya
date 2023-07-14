@@ -64,15 +64,6 @@ class TaskViewController: UIViewController, UITextViewDelegate {
         return separator
     }()
     
-//    private lazy var separator2: UIView = {
-//        let separator = UIView()
-//        separator.translatesAutoresizingMaskIntoConstraints = true
-//        separator.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.2039010762)
-//       // separator.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
-//        separator.isHidden = true
-//        return separator
-//    }()
-    
     private lazy var importanceLabel: UILabel = {
         let label = UILabel()
         label.text = "Важность"

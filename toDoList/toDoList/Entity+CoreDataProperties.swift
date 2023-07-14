@@ -1,17 +1,10 @@
-////
-////  Entity+CoreDataProperties.swift
-////  toDoList
-////
-////  Created by MacBookAir on 13.07.2023.
-////
-////
-
 import Foundation
 import CoreData
 
+@objc(Entity)
+public class Entity: NSManagedObject {}
 
 public extension Entity {
-
     @nonobjc class func fetchRequest() -> NSFetchRequest<Entity> {
         return NSFetchRequest<Entity>(entityName: "Entity")
     }
@@ -23,5 +16,4 @@ public extension Entity {
     @NSManaged var dateCreated: Date
     @NSManaged var dateChanged: Date?
 }
-
 extension Entity : Identifiable {}
