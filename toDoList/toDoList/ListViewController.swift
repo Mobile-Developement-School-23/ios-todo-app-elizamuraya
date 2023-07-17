@@ -1,15 +1,20 @@
 import UIKit
+import CoreData
+import SQLite
 
 protocol ListViewControllerDelegate: AnyObject {
     func saveItem(_ todoItem: TodoItem)
-    func deleteItem(_ id: String,_ reloadTable: Bool)
+    func deleteItem(_ toDoItem: TodoItem,_ reloadTable: Bool)
 }
 
 class ListViewController: UIViewController {
-    private var fileCache: DataCache = FileCache()
-    private var items: [TodoItem] = []
+    private var fileCache: DataCache = FileCache(context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext)
     let networkFetcher = NetworkFetcher()
+    private var dataCacheSQL: DataCacheSQL!
+    
+    private var items: [TodoItem] = []
     private let activityIndicatorView = UIActivityIndicatorView(style: .large)
+    
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -47,6 +52,7 @@ class ListViewController: UIViewController {
             taskViewController.delegate = self
             self?.present(taskViewController, animated: true)
         }))
+
         addButton.translatesAutoresizingMaskIntoConstraints = false
         addButton.layer.shadowColor = UIColor.black.cgColor
         addButton.layer.shadowOffset = CGSize(width: 0, height: 8)
@@ -90,8 +96,24 @@ class ListViewController: UIViewController {
         navigationItem.title = "Мои дела"
         navigationController?.navigationBar.layoutMargins = UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 0)
         tableView.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseId)
-        try! fileCache.save(toFile: defaultName, format: .json)
+        dataCacheSQL = DataCacheSQL()
         loadItems()
+        
+//        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+//                   fatalError("Failed to access AppDelegate")
+//               }
+              // container = appDelegate.persistentContainer
+            //   try! fileCache.save(toFile: defaultName, format: .json)
+               
+////        guard container != nil else {
+////                   fatalError("This view needs a persistent container.")
+////               }
+//        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+//                   fatalError("Failed to access AppDelegate")
+//               }
+//               container = appDelegate.persistentContainer
+//      //  try! fileCache.save(toFile: defaultName, format: .json)
+//      loadItems()
     }
     
     // MARK: Actions
@@ -118,98 +140,139 @@ class ListViewController: UIViewController {
         activityIndicatorView.startAnimating()
         Task {
             do {
-                let toDoItems = try await networkFetcher.getAllItems()
-                for toDoItem in toDoItems {
-                    fileCache.add(toDoItem)
-                }
+              try await fileCache.loadFromCoreData()
+               // try dataCacheSQL.load()
                 fileCache.isDirty = false
                 tableView.reloadData()
                 activityIndicatorView.stopAnimating()
             } catch {
                 debugPrint(error)
-                do {
-                    try fileCache.load(from: defaultName, format: .json)
-                    tableView.reloadData()
-                } catch {
-                    debugPrint("error")
-                }
-                fileCache.isDirty = true
-                activityIndicatorView.stopAnimating()
             }
+            activityIndicatorView.stopAnimating()
+            do {
+                try fileCache.load(from: defaultName, format: .json)
+                tableView.reloadData()
+            } catch {
+                debugPrint("error")
+                fileCache.isDirty = true
+            }
+            activityIndicatorView.stopAnimating()
         }
     }
 }
 
 extension ListViewController: ListViewControllerDelegate {
     
-    func saveItem(_ todoItem: TodoItem) {
-        fileCache.add(todoItem)
-
-        do {
-            try fileCache.save(toFile: defaultName, format: .json)
-        } catch {
-            debugPrint("error")
-        }
-        tableView.reloadData()
-        
-        guard !fileCache.isDirty else {
-            updateAllItems()
-            return
-        }
-        
-        Task.init {
-            self.activityIndicatorView.startAnimating()
-            var retryCount = 0
-            let maxRetryAttempts = 5
-            var delay = 1.0
-            while retryCount < maxRetryAttempts {
-                do {
-                    self.activityIndicatorView.stopAnimating()
-                    try await networkFetcher.addItem(toDoItem: todoItem)
-                    break
-                } catch {
-                    debugPrint(error)
-                    fileCache.isDirty = true
-                    retryCount += 1
-                    delay *= 2.0
-                    
-                    print(delay)
-                    await Task.sleep(UInt64(delay * 1_000_000_000)) // Усыпляет задачу на заданное количество секунд
-                    continue
-                }
-            }
-        }
-    }
-    
-    func deleteItem(_ id: String,_ reloadTable: Bool = true) {
-        fileCache.remove(id: id)
-        
-        do {
-            try fileCache.save(toFile: defaultName, format: .json)
-        } catch {
-            debugPrint("error")
-        }
-        
-        if reloadTable { tableView.reloadData() }
-        guard !fileCache.isDirty else {
-            updateAllItems()
-            return
-        }
-        
-        Task {
+    nonisolated func saveItem(_ todoItem: TodoItem) {
+        //  fileCache.add(todoItem)
+        Task { @MainActor in
+            fileCache.add(todoItem)
             do {
-                try await networkFetcher.removeItem(id: id)
+               try await fileCache.insertInCoreData(toDoItem: todoItem)
+              // try dataCacheSQL.insert(item: todoItem)
+              //  try fileCache.save(toFile: defaultName, format: .json)
+                
+                self.tableView.reloadData()
             } catch {
                 debugPrint(error)
-                fileCache.isDirty = true
             }
+       // tableView.reloadData()
+            
+//            guard !fileCache.isDirty else {
+//                updateAllItems()
+//                return
+//            }
         }
     }
+//        Task.init {
+//            self.activityIndicatorView.startAnimating()
+//            var retryCount = 0
+//            let maxRetryAttempts = 5
+//            var delay = 1.0
+//            while retryCount < maxRetryAttempts {
+//                do {
+//                    self.activityIndicatorView.stopAnimating()
+//                   // fetchItemsFromCoreData()
+//                    //try await networkFetcher.addItem(toDoItem: todoItem)
+//                    break
+//                } catch {
+//                    debugPrint(error)
+//                    fileCache.isDirty = true
+//                    retryCount += 1
+//                    delay *= 2.0
+//
+//                    print(delay)
+//                    await Task.sleep(UInt64(delay * 1_000_000_000))
+//                    continue
+//                }
+//            }
+//        }
+ 
+
     
+    func deleteItem(_ toDoItem: TodoItem,_ reloadTable: Bool = true) {
+        fileCache.remove(id: toDoItem.id)
+        Task {
+            do {
+                try await fileCache.deleteInCoreData(toDoItem: toDoItem)
+                //    try fileCache.save(toFile: defaultName, format: .json)
+                
+            } catch {
+                debugPrint("error")
+            }
+            
+//            if reloadTable { tableView.reloadData() }
+//            guard !fileCache.isDirty else {
+//                updateAllItems()
+//                return
+//            }
+            
+        }
+          
+//          Task {
+//              do {
+//                  try await networkFetcher.removeItem(id: toDoItem.id)
+//              } catch {
+//                  debugPrint(error)
+//                  fileCache.isDirty = true
+//              }
+//          }
+      }
+    
+//    nonisolated func deleteItem(_ id: String,_ reloadTable: Bool = true) {
+//        Task { @MainActor in
+//            fileCache.remove(id: id)
+//
+//            do {
+//               // try await fileCache.deleteInCoreData(toDoItem: toDoItem)
+//                try fileCache.save(toFile: defaultName, format: .json)
+//                tableView.reloadData()
+//            } catch {
+//                debugPrint("error")
+//            }
+//
+//           // if reloadTable { tableView.reloadData() }
+//            guard !fileCache.isDirty else {
+//                updateAllItems()
+//                return
+//            }
+//            activityIndicatorView.startAnimating()
+//
+//                do {
+//                    try await networkFetcher.removeItem(id: id)
+//                } catch {
+//                    debugPrint(error)
+//                    fileCache.isDirty = true
+//                }
+//            activityIndicatorView.stopAnimating()
+//
+//        }
+//    }
     
     func updateAllItems() {
         Task {
             do {
+   
                 try await networkFetcher.updateAllItems()
                 fileCache.isDirty = false
                 tableView.reloadData()
@@ -223,7 +286,8 @@ extension ListViewController: ListViewControllerDelegate {
     func getItem(id: String) {
         Task {
             do {
-                try await networkFetcher.getItem(id: id)
+                try await
+                networkFetcher.getItem(id: id)
             } catch {
                 debugPrint(error)
             }
@@ -360,7 +424,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
             guard let self else { return }
             let toDoItem = fileCache.itemsSorted[indexPath.row]
             
-            deleteItem(toDoItem.id, false)
+            deleteItem(toDoItem, false)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
         
@@ -388,7 +452,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
                      attributes: .destructive)
             { _ in
                 let toDoItem = self.fileCache.itemsSorted[index]
-                self.deleteItem(toDoItem.id)
+                self.deleteItem(toDoItem)
             }
             return UIMenu(title: "", children: [deleteAction])
         })

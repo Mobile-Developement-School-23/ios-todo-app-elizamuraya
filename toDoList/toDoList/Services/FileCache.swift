@@ -1,4 +1,5 @@
 import Foundation
+import CoreData
 
 protocol DataCache {
     var items: [String: TodoItem] { get }
@@ -6,9 +7,15 @@ protocol DataCache {
     var isDirty: Bool { get set }
     
     func add(_ item: TodoItem)
+    @discardableResult func remove(id: String) -> TodoItem?
     func save(toFile file: String, format: FormatToSave) throws
     func load(from file: String, format: FormatToSave) throws
-    @discardableResult func remove(id: String) -> TodoItem?
+    
+    // MARK: – CoreData
+    func loadFromCoreData() async throws
+    func insertInCoreData(toDoItem: TodoItem) async throws
+    func deleteInCoreData(toDoItem: TodoItem) async throws
+    func updateCoreData(toDoItem: TodoItem) async throws
 }
 
 enum FormatToSave {
@@ -22,12 +29,69 @@ enum FileCacheError: Error {
 }
 
 final class FileCache: DataCache {
+    init(items: [String : TodoItem] = [:], isDirty: Bool = false, context: NSManagedObjectContext) {
+        self.items = items
+        self.isDirty = isDirty
+        self.context = context
+    }
+    func loadFromCoreData() async throws {
+        guard let context else { throw FileCacheError.unparseableData }
+        let cdItems = try context.fetch(Entity.fetchRequest())
+        let toDoItems = cdItems.map { TodoItem.convert(from: $0) }
+        for toDoItem in toDoItems {
+            add(toDoItem)
+        }
+    }
+    
+    func insertInCoreData(toDoItem: TodoItem) async throws {
+        guard let context else { throw FileCacheError.unparseableData }
+        let cdItem = TodoItem.convert(from: toDoItem, with: context)
+        print(cdItem)
+        try context.save()
+    }
+    
+    func updateCoreData(toDoItem: TodoItem) async throws {
+        guard let context else { throw FileCacheError.unparseableData }
+        guard let coreDataItem = try await getInCoreData(toDoItem: toDoItem) else { return }
+        coreDataItem.id = toDoItem.id
+        coreDataItem.text = toDoItem.text
+        coreDataItem.importance = toDoItem.importance.rawValue
+        coreDataItem.deadline = toDoItem.deadline
+        coreDataItem.isCompleted = toDoItem.isCompleted
+        coreDataItem.dateCreated = toDoItem.dateCreated
+        coreDataItem.dateChanged = toDoItem.dateChanged
+        if context.hasChanges {
+            try context.save()
+        }
+    }
+    
+    
+    
+    func deleteInCoreData(toDoItem: TodoItem) async throws {
+        guard let context else { throw FileCacheError.unparseableData }
+        guard let cdItem = try await getInCoreData(toDoItem: toDoItem) else { return }
+        print(cdItem)
+        context.delete(cdItem)
+        try context.save()
+    }
+    
+    func getInCoreData(toDoItem: TodoItem) async throws -> Entity? {
+        guard let context else { throw FileCacheError.unparseableData }
+        let request = Entity.fetchRequest()
+        let predicate = NSPredicate(format: "id CONTAINS %@", toDoItem.id)
+        request.predicate = predicate
+        let cdItems = try context.fetch(request)
+        print(cdItems.first as Any)
+        return cdItems.first
+    }
     
     private(set) var items: [String: TodoItem] = [:]
     var isDirty: Bool = false
     var itemsSorted: [TodoItem] {
         items.sorted { $0.value.dateCreated < $1.value.dateCreated }.map { $1 }
     }
+    
+    private let context: NSManagedObjectContext?
     
     // MARK: – ADD ITEM
     func add(_ item: TodoItem) {
@@ -72,11 +136,11 @@ final class FileCache: DataCache {
             add(item)
         }
     }
-    
+
     // MARK: – DELETE ITEM
     @discardableResult
     func remove(id: String) -> TodoItem? {
-            let removedItem = items.removeValue(forKey: id)
-            return removedItem
-        }
+        let removedItem = items.removeValue(forKey: id)
+        return removedItem
+    }
 }

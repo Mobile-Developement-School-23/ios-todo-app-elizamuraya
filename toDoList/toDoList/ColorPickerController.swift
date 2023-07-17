@@ -1,9 +1,3 @@
-//
-//  ColorPickerViewController.swift
-//  ToDoProject
-//
-//  Created by MacBookAir on 23.06.2023.
-//
 import UIKit
 
 protocol ColorPickerDelegate: AnyObject {

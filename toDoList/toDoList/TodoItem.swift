@@ -1,6 +1,7 @@
 import Foundation
+import CoreData
 
-enum Importance: String {
+public enum Importance: String {
    case low
    case normal
    case high
@@ -65,4 +66,27 @@ extension TodoItem {
             let networkItem = NetworkToDoItem(id: id, text: text, importance: importance, done: isCompleted, createdAt: created)
             return networkItem
         }
+}
+
+extension TodoItem {
+    static func convert(from CoreDataItem: Entity) -> TodoItem {
+        TodoItem(id: CoreDataItem.id,
+                 text: CoreDataItem.text,
+                 importance: Importance(rawValue: CoreDataItem.importance) ?? .normal,
+                 deadline: CoreDataItem.deadline,
+                 isCompleted: CoreDataItem.isCompleted,
+                 dateCreated: CoreDataItem.dateCreated,
+                 dateChanged: CoreDataItem.dateChanged)
+    }
+    static func convert(from toDoItem: TodoItem, with context: NSManagedObjectContext) -> Entity {
+        let cdItem = Entity(context: context)
+        cdItem.id = toDoItem.id
+        cdItem.text = toDoItem.text
+        cdItem.importance = toDoItem.importance.rawValue
+        cdItem.deadline = toDoItem.deadline
+        cdItem.isCompleted = toDoItem.isCompleted
+        cdItem.dateCreated = toDoItem.dateCreated
+        cdItem.dateChanged = toDoItem.dateChanged
+        return cdItem
+    }
 }
