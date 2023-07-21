@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NotesView: View {
     @Environment(\.presentationMode) var presentationMode
+    @State private var tasks: [TodoItem] = []
     @State private var newItem = ""
     @State private var text = ""
     @State private var importance = "Важность"
@@ -12,7 +13,6 @@ struct NotesView: View {
     @State private var color: Color = .clear
     @State private var showCalendar = false
     @FocusState private var textIsFocused: Bool
-    
     
     
     private let dateFormatter: DateFormatter = {
@@ -27,10 +27,8 @@ struct NotesView: View {
 
     
     var onAddItem: (String) -> Void
-    
     struct TextEditorWithPlaceholder: View {
         @Binding var text: String
-        
         
         var body: some View {
             ZStack(alignment: .leading) {
@@ -55,8 +53,6 @@ struct NotesView: View {
             }
         }
     }
-    
-    
     
     var body: some View {
         NavigationView {
@@ -93,42 +89,27 @@ struct NotesView: View {
                     }
                     
                     if showCalendar {
-                      //  Divider()
                         DatePicker("", selection: $date,
                                    in: Date()...,
                                    displayedComponents: .date)
                         .datePickerStyle(.graphical)
                         .environment(\.locale, Locale.init(identifier: "ru"))
                     }
-               // }
-              //  .padding(.all, 16)
-               // .background(content: <#T##() -> View#>)
-               // .cornerRadius(16)
-                   
-                    ColorPicker("Закрытый гештальт", selection: $color)
                 }
-                
-                
-                //Spacer()
-                
-         
+
                 Button(action: {
                                    self.onAddItem(self.newItem)
                                    self.newItem = ""
                                }) {
                                    Text("Удалить")
                                        .frame(maxWidth: .infinity)
-                                     //  .foregroundColor(.black)
                                        .cornerRadius(10)
                                        .foregroundColor(text.isEmpty ? .gray : .red)
-//                                   UIColor(text.isEmpty ? .opacity(0.6) : UIColor(.red))
-                                       
                                }
             }
             .listRowInsets(EdgeInsets())
             .scrollContentBackground(.hidden)
-          //  .environment(\.defaultMinListRowHeight, 30)
-            .background(Color(UIColor(red: 0.97, green: 0.97, blue: 0.95, alpha: 1)))
+            .background(Color("background"))
             .foregroundColor(.primary)
 
             .navigationBarTitleDisplayMode(.inline)
@@ -149,10 +130,8 @@ struct NotesView: View {
                     Text("Сохранить")
                         .foregroundColor(text.isEmpty ? .gray : .blue)
                        .bold()
-                      // textIsFocused = false
                 }
             )
         }
-        
     }
 }

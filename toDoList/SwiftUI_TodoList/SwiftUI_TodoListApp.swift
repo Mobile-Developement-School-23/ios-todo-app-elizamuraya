@@ -8,9 +8,12 @@ import SwiftUI
 
 @main
 struct SwiftUI_TodoListApp: App {
+    
     var body: some Scene {
         WindowGroup {
             ListFullView()
+            
         }
     }
+    
 }

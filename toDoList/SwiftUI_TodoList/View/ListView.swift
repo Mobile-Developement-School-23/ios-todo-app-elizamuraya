@@ -4,27 +4,24 @@ struct ListFullView: View {
     @State private var showNotesScreen = false
     @State private var tasks: [TodoItem] = []
     @State private var showDoneTasks = true
-   
     
     var body: some View {
         VStack(alignment: .leading) {
             Text("Мои дела")
                 .font(.system(size: 34, weight: .bold, design: .default))
-                .foregroundColor(Color.black)
-                .background(Color(UIColor(red: 0.97, green: 0.97, blue: 0.95, alpha: 1)))
+                .foregroundColor(Color("text"))
                 .padding(.top, 52)
                 .padding(.leading, 32)
-          
+            
             HStack {
                 Text("Выполнено — \(tasks.filter { $0.isCompleted }.count)")
-                    .foregroundColor(Color(UIColor(red: 0, green: 0, blue: 0, alpha: 1)))
                     .opacity(0.4)
                 Spacer()
                 Button(action: {
                     showDoneTasks.toggle()
                 }) {
                     Text(showDoneTasks ? "Скрыть" : "Показать")
-                        .foregroundColor(Color(UIColor(red: 0, green: 0.48, blue: 1, alpha: 1)))
+                        .bold()
                 }
             }
             .padding(.horizontal)
@@ -61,9 +58,8 @@ struct ListFullView: View {
                         Text("Новое")
                             .foregroundColor(.gray)
                     }
-                }   .background(Color(UIColor(red: 0.97, green: 0.97, blue: 0.95, alpha: 1)))
+                }   .background(Color("background"))
                     .scrollContentBackground(.hidden)
-     
             }
             
             Button(action: {
@@ -75,26 +71,23 @@ struct ListFullView: View {
             }
             .padding(12)
             .cornerRadius(50)
-          //  .padding(.bottom, 12)
-            .padding(.leading, 160)
-    
+            .padding(.bottom, 12)
+            .padding(.leading, 170)
             .shadow(radius: 10)
+            
             .sheet(isPresented: $showNotesScreen) {
                 NotesView(onAddItem: { newItem in
                     self.tasks.append(TodoItem(text: newItem))
                 })
             }
         }
-    
-        .background(Color(UIColor(red: 0.97, green: 0.97, blue: 0.95, alpha: 1)))
+        .background(Color("background"))
         .environment(\.defaultMinListRowHeight, 56)
     }
     
     func delete(index: Int) {
         tasks.remove(at: index)
     }
-    
-    
 }
 
 struct TaskRow: View {
@@ -108,7 +101,6 @@ struct TaskRow: View {
         formatter.timeStyle = .none
         return formatter
     }()
-
     
     var body: some View {
         HStack {
@@ -119,7 +111,6 @@ struct TaskRow: View {
                     .resizable()
                     .frame(width: 24.0, height: 24.0)
                     .foregroundColor(task.isCompleted ? .green : .gray)
-                    
             }
             VStack(alignment: .leading) {
                 Text(task.text)
@@ -133,10 +124,6 @@ struct TaskRow: View {
                 }
             }
             Spacer()
-//            if task.isImportant {
-//                Image(systemName: "exclamationmark.triangle.fill")
-//                    .foregroundColor(.red)
-//            }
         }
     }
 }
